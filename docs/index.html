@@ -1,1730 +1,206 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>农小禾 · 健康 Agent</title>
-<style>
-/* 农小禾 Agent · 样式（三套主题：健身黑绿 / 健康浅绿 / 管理员未来科技） */
-:root {
-  --radius: 16px; --fs: 14px; --shadow: 0 10px 30px rgba(0,0,0,.08);
-}
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; font-size: var(--fs); }
-body { background: #eef1ee; color: #1b2620; }
-button, input, select, textarea { font-family: inherit; font-size: inherit; }
-a { color: inherit; text-decoration: none; }
-.hidden { display: none !important; }
-
-/* ---------- 登录 ---------- */
-.auth-wrap { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; background: #0b120e; color: #eafff2; }
-.auth-panel { display: flex; flex-direction: column; justify-content: center; padding: 8vh 10%; background: linear-gradient(145deg, #0d1712, #0a100d 60%); }
-.auth-brand .logo { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(145deg, #c8ff5c, #48d98a); color: #08110b; font-weight: 900; font-size: 24px; }
-.auth-brand .logo.big { width: 62px; height: 62px; font-size: 30px; }
-.auth-brand h1 { font-size: 31px; margin: 24px 0 8px; letter-spacing: -.5px; }
-.auth-brand p { color: #8fb39c; margin: 0; }
-.auth-form { margin-top: 36px; max-width: 440px; }
-.auth-form .fl span { color: #9ec4ac; }
-.auth-form .fl input { background: #111d16; border: 1px solid #2b4033; color: #eafff2; }
-.auth-form .fl input:focus { border-color: #6fe6a3; }
-.auth-foot { margin-top: 20px; color: #6f8f7b; font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-.auth-aside { position: relative; overflow: hidden; background: radial-gradient(circle at 65% 40%, rgba(117,255,173,.22), transparent 45%), linear-gradient(135deg, #102019, #050b08); display: grid; place-items: center; }
-.orbit { position: absolute; border: 1px solid rgba(134,255,183,.16); border-radius: 50%; }
-.o1 { width: 520px; height: 520px; animation: spin 24s linear infinite; border-style: dashed; }
-.o2 { width: 360px; height: 360px; animation: spin 16s linear infinite reverse; }
-.o3 { width: 190px; height: 190px; background: radial-gradient(circle, rgba(140,255,190,.14), transparent 70%); }
-@keyframes spin { to { transform: rotate(360deg); } }
-.aside-copy { position: relative; z-index: 2; text-align: center; }
-.aside-copy .tag, .tag { display: inline-block; letter-spacing: 2px; font-size: 11px; color: #7fffb5; border: 1px solid rgba(127,255,181,.35); padding: 5px 10px; border-radius: 99px; }
-.aside-copy h2 { font-size: 44px; line-height: 1.2; margin: 22px 0 14px; }
-.aside-copy p { color: #8fb39c; }
-.auth-form .admin-entry { margin-top: 12px; border-color: #7fffb5; color: #7fffb5; background: rgba(127,255,181,.08); box-shadow: 0 0 18px rgba(127,255,181,.2); }
-
-/* ---------- 模式选择 ---------- */
-.mode-wrap { min-height: 100vh; background: radial-gradient(circle at 20% 0%, #e8f9ee, #f7faf8 55%); padding: 7vh 6%; }
-.mode-head { text-align: center; margin-bottom: 44px; }
-.mode-head h1 { font-size: 34px; margin: 18px 0 8px; }
-.mode-head p { color: #6f7d74; }
-.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 1000px; margin: 0 auto; }
-.mode-card { position: relative; overflow: hidden; padding: 34px; border-radius: 22px; min-height: 340px; transition: transform .2s, box-shadow .2s; }
-.mode-card:hover { transform: translateY(-6px); box-shadow: 0 24px 50px rgba(0,0,0,.16); }
-.mode-card.fitness { background: linear-gradient(150deg, #08100c, #101d15); color: #eafff2; border: 1px solid #21422e; }
-.mode-card.fitness::after { content: ''; position: absolute; width: 280px; height: 280px; right: -80px; top: -90px; border-radius: 50%; background: radial-gradient(circle, rgba(91,255,156,.28), transparent 70%); }
-.mode-card.health { background: linear-gradient(150deg, #f2fbf5, #e4f4ea); color: #1d3a29; border: 1px solid #cce8d7; }
-.mode-card.health::after { content: ''; position: absolute; width: 280px; height: 280px; right: -80px; top: -90px; border-radius: 50%; background: radial-gradient(circle, rgba(85,185,130,.18), transparent 70%); }
-.mode-kicker { font-size: 11px; letter-spacing: 3px; color: #7fffb5; }
-.mode-card.health .mode-kicker { color: #4e9c71; }
-.mode-card h2 { font-size: 32px; margin: 14px 0 10px; }
-.mode-card p { line-height: 1.7; opacity: .82; }
-.mode-card ul { padding-left: 18px; line-height: 2; opacity: .85; }
-.mode-cta { display: inline-block; margin-top: 16px; font-weight: 700; }
-
-/* ---------- 应用骨架 ---------- */
-.app-shell { min-height: 100vh; padding-bottom: 78px; }
-.topbar { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px); }
-.brand { display: flex; align-items: center; gap: 10px; }
-.brand .logo { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; font-weight: 900; }
-.brand div { display: flex; flex-direction: column; line-height: 1.2; }
-.brand strong { font-size: 15px; letter-spacing: .3px; }
-.brand small { font-size: 10px; opacity: .6; }
-.top-right { display: flex; align-items: center; gap: 12px; }
-.mode-pill { font-size: 11px; padding: 5px 10px; border-radius: 99px; border: 1px solid currentColor; opacity: .8; }
-.ghost-btn, .icon-btn { background: transparent; border: 1px solid currentColor; border-radius: 9px; padding: 6px 11px; cursor: pointer; opacity: .8; }
-.icon-btn { font-size: 17px; line-height: 1; }
-.main { max-width: 1120px; margin: 0 auto; padding: 26px 18px 36px; }
-.tabbar { position: fixed; bottom: 0; left: 0; right: 0; height: 66px; display: flex; justify-content: center; gap: 8px; padding: 8px 5%; z-index: 30; backdrop-filter: blur(16px); }
-.tab { flex: 1; max-width: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 12px; font-size: 11px; opacity: .62; transition: .2s; }
-.tab .ti { font-size: 19px; line-height: 1; }
-.tab.on { opacity: 1; }
-.tab:hover { opacity: .95; }
-
-/* ---------- 健身主题 ---------- */
-.theme-fitness { background: radial-gradient(circle at 10% 0%, #10241a, #060b08 42%); color: #e9fff2; }
-.theme-fitness .topbar, .theme-fitness .tabbar { background: rgba(7,14,10,.84); border-color: #1c3526; }
-.theme-fitness .tabbar { border-top: 1px solid #1c3526; }
-.theme-fitness .brand .logo { background: linear-gradient(145deg, #c8ff5c, #39ff9a); color: #07110b; }
-.theme-fitness .brand small { color: #7bd6a0; }
-.theme-fitness .mode-pill, .theme-fitness .ghost-btn { color: #8bf0b6; border-color: #2d5c3e; }
-.theme-fitness .page-head h1 { color: #eafff2; }
-.theme-fitness .page-head p { color: #86b497; }
-.theme-fitness .card { background: linear-gradient(160deg, rgba(22,42,29,.85), rgba(10,19,14,.92)); border: 1px solid #244b33; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
-.theme-fitness .card-h h3 { color: #b9ffd3; }
-.theme-fitness .note { color: #7fb493; }
-.theme-fitness .btn.primary { background: linear-gradient(120deg, #39ff9a, #b6ff5c); color: #06110a; border: none; }
-.theme-fitness .btn.ghost { border-color: #3b6e4d; color: #9be6bb; }
-.theme-fitness .btn.danger { color: #ff9c9c; border-color: #6d3b3b; }
-.theme-fitness .score-badge { background: rgba(57,255,154,.08); border-color: #2d5c3e; }
-.theme-fitness .score-badge strong { color: #b6ff5c; }
-.theme-fitness .quick-row, .theme-fitness .compare-grid, .theme-fitness .progress-block, .theme-fitness .score-parts { background: rgba(12,27,18,.7); border-color: #244b33; }
-.theme-fitness .cmp em.down { color: #7dffb0; } .theme-fitness .cmp em.up { color: #ff9a76; }
-.theme-fitness .post, .theme-fitness .product, .theme-fitness .qa, .theme-fitness .plan, .theme-fitness .verdict, .theme-fitness .detail-grid { background: rgba(13,28,19,.8); border-color: #21462f; }
-.theme-fitness .act { border-color: #2d5c3e; color: #9be6bb; }
-.theme-fitness .act.on, .theme-fitness .btn.primary.sm { background: rgba(57,255,154,.18); color: #c9ffdd; }
-.theme-fitness .ai-banner { background: linear-gradient(120deg, rgba(57,255,154,.14), rgba(182,255,92,.05)); border-color: #2d5c3e; }
-.theme-fitness .bar { background: #1a3021; } .theme-fitness .bar i { background: linear-gradient(90deg, #39ff9a, #b6ff5c); }
-.theme-fitness .bar.alt i { background: linear-gradient(90deg, #4bc3ff, #7be0ff); }
-
-/* ---------- 健康主题 ---------- */
-.theme-health { background: linear-gradient(180deg, #f6fbf7, #eef6f0); color: #234131; }
-.theme-health .topbar, .theme-health .tabbar { background: rgba(248,252,249,.9); border-color: #dcece2; }
-.theme-health .tabbar { border-top: 1px solid #dcece2; }
-.theme-health .brand .logo { background: linear-gradient(145deg, #8ddbb0, #4aa978); color: #fff; }
-.theme-health .brand small { color: #7a9b86; }
-.theme-health .mode-pill, .theme-health .ghost-btn { color: #4e9c71; border-color: #c9e3d3; }
-.theme-health .page-head h1 { color: #1d4a32; }
-.theme-health .page-head p { color: #739283; }
-.theme-health .card { background: #fff; border: 1px solid #e3efe7; box-shadow: 0 8px 24px rgba(46,105,71,.06); }
-.theme-health .card-h h3 { color: #2e6c49; }
-.theme-health .note { color: #7d9989; }
-.theme-health .btn.primary { background: linear-gradient(120deg, #57b986, #87d6a8); color: #fff; border: none; }
-.theme-health .btn.ghost { border-color: #c9e3d3; color: #4e9c71; }
-.theme-health .btn.danger { color: #b35e5e; border-color: #e6cccc; }
-.theme-health .score-badge { background: #eff8f2; border-color: #d7ebdf; }
-.theme-health .score-badge strong { color: #47a875; }
-.theme-health .quick-row, .theme-health .compare-grid, .theme-health .progress-block, .theme-health .score-parts { background: #fff; border-color: #e3efe7; }
-.theme-health .cmp em.down { color: #3ca672; } .theme-health .cmp em.up { color: #d18457; }
-.theme-health .post, .theme-health .product, .theme-health .qa, .theme-health .plan, .theme-health .verdict, .theme-health .detail-grid { background: #fff; border-color: #e5f0e8; }
-.theme-health .act { border-color: #d7ebdf; color: #54886a; }
-.theme-health .act.on, .theme-health .btn.primary.sm { background: #e8f6ed; color: #2e7a50; }
-.theme-health .ai-banner { background: linear-gradient(120deg, #e7f7ed, #f7fcf9); border-color: #d3ebdc; }
-.theme-health .bar { background: #e9f3ed; } .theme-health .bar i { background: linear-gradient(90deg, #4faf7c, #9fe0bb); }
-.theme-health .bar.alt i { background: linear-gradient(90deg, #6db6d8, #a8dcee); }
-.theme-health .verdict.优秀, .theme-health .verdict.良好 { border-left-color: #48a978; }
-.theme-health .verdict.一般 { border-left-color: #d3b057; }
-.theme-health .verdict.偏弱, .theme-health .verdict.较弱 { border-left-color: #d17a68; }
-
-/* ---------- 通用组件 ---------- */
-.page-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-.page-head h1 { font-size: 27px; margin: 8px 0 5px; }
-.page-head p { margin: 0; opacity: .7; }
-.page-head .kicker, .kicker { font-size: 10px; letter-spacing: 2.5px; opacity: .7; }
-.score-badge { border: 1px solid; border-radius: 14px; padding: 8px 18px; text-align: center; white-space: nowrap; }
-.score-badge small { display: block; font-size: 10px; opacity: .65; }
-.score-badge strong { font-size: 28px; }
-.score-badge span { font-size: 11px; opacity: .6; margin-left: 3px; }
-.quick-row, .compare-grid, .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
-.quick-row > div, .admin-stats > div { border: 1px solid; border-radius: 12px; padding: 12px 14px; }
-.quick-row span, .admin-stats span { display: block; font-size: 11px; opacity: .65; }
-.quick-row strong, .admin-stats strong { font-size: 20px; }
-.card { border-radius: var(--radius); margin-bottom: 18px; overflow: hidden; }
-.card-h { padding: 14px 18px; border-bottom: 1px solid rgba(128,128,128,.14); }
-.card-h h3 { margin: 0; font-size: 15px; }
-.card-b { padding: 18px; }
-.card-f { padding: 10px 18px; border-top: 1px solid rgba(128,128,128,.12); }
-.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.form-grid .full { grid-column: 1 / -1; }
-.fl { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
-.fl span, .fl-title { opacity: .72; }
-.fl input, .fl select, .fl textarea, .comment-form input, .admin-search input, .qa-form input {
-  border: 1px solid rgba(128,128,128,.3); border-radius: 9px; padding: 9px 11px; background: rgba(127,127,127,.06); color: inherit; outline: none; width: 100%;
-}
-.fl input:focus, .fl select:focus, .fl textarea:focus, .qa-form input:focus { border-color: #59c98c; }
-.fl textarea { resize: vertical; }
-.note { font-size: 12px; line-height: 1.7; opacity: .8; margin: 4px 0; }
-.btn { border: 1px solid rgba(128,128,128,.3); border-radius: 9px; padding: 9px 16px; cursor: pointer; background: transparent; color: inherit; font-weight: 600; }
-.btn:disabled { opacity: .4; cursor: not-allowed; }
-.btn.wide { width: 100%; }
-.btn.sm { padding: 6px 12px; font-size: 12px; }
-.btn.primary { font-weight: 700; }
-.chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-.chart { border: 1px solid rgba(128,128,128,.16); border-radius: 12px; padding: 12px; }
-.chart-top { display: flex; justify-content: space-between; font-size: 12px; opacity: .8; }
-.chart svg { width: 100%; height: 90px; margin-top: 6px; }
-.chart-axis, .chart-empty { display: flex; justify-content: space-between; font-size: 11px; opacity: .55; }
-.chart-empty { display: block; text-align: center; padding: 30px 0; }
-.compare-grid { grid-template-columns: repeat(4, 1fr); margin-top: 16px; }
-.cmp { border: 1px solid; border-radius: 12px; padding: 12px; }
-.cmp span { display: block; font-size: 11px; opacity: .65; }
-.cmp b { font-size: 18px; }
-.cmp em { display: block; font-style: normal; font-size: 12px; }
-.progress-block { border: 1px solid; border-radius: 12px; padding: 14px; margin-top: 16px; font-size: 12px; }
-.bar { height: 8px; border-radius: 99px; overflow: hidden; margin: 8px 0 14px; }
-.bar i { display: block; height: 100%; border-radius: 99px; }
-.score-parts { display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid; border-radius: 12px; padding: 12px; margin-top: 14px; font-size: 12px; }
-.photo-row { display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 12px; align-items: end; }
-.photo-block h4 { margin: 18px 0 8px; font-size: 13px; }
-.photo-timeline { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; }
-.photo-timeline figure { margin: 0; flex: 0 0 130px; }
-.photo-timeline img { width: 130px; height: 160px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(128,128,128,.25); }
-.photo-timeline figcaption { font-size: 11px; opacity: .65; text-align: center; margin-top: 5px; }
-.empty { opacity: .6; font-size: 13px; }
-.remind-row, .setting-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-details summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
-.standards { line-height: 1.9; font-size: 12px; opacity: .85; padding-left: 18px; }
-.check-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0 14px; }
-.check-grid label { display: flex; gap: 6px; align-items: center; font-size: 12px; }
-
-/* 广场 */
-.post-list { display: grid; gap: 14px; }
-.post, .product, .qa, .plan, .verdict, .detail-grid { border: 1px solid; border-radius: 14px; padding: 16px; }
-.post-head, .uc-head, .cc-head { display: flex; align-items: center; gap: 10px; }
-.post-head strong, .uc-head strong { display: block; }
-.post-head small, .uc-head small { opacity: .6; font-size: 11px; }
-.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #68c995, #b4e8c8); color: #123; font-weight: 800; }
-.post h3 { margin: 12px 0 6px; font-size: 16px; }
-.post p { line-height: 1.7; opacity: .85; }
-.post-plan { border-left: 3px solid #5fc88f; padding: 8px 12px; font-size: 12px; opacity: .8; background: rgba(127,127,127,.05); }
-.post-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
-.act { border: 1px solid; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 12px; background: transparent; color: inherit; }
-.act:disabled { opacity: .45; cursor: not-allowed; }
-.comments p { font-size: 12px; margin: 6px 0; }
-.comments small { opacity: .5; }
-.comment-form { display: flex; gap: 8px; }
-.comment-form input { flex: 1; }
-.comment-form button, .admin-search button, .qa-form button { border: none; border-radius: 8px; padding: 0 14px; cursor: pointer; background: #58bb87; color: #fff; font-weight: 600; }
-
-/* 慧选 */
-.ai-banner { display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px solid; border-radius: 14px; padding: 14px 18px; margin-bottom: 18px; }
-.ai-banner p { margin: 6px 0 0; font-size: 12px; opacity: .8; }
-.shop-group { margin-bottom: 22px; }
-.shop-group h2 { font-size: 16px; margin: 0 0 12px; }
-.product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.product-top { display: flex; justify-content: space-between; font-size: 12px; }
-.product-top .cat { opacity: .6; }
-.product h3 { margin: 10px 0 6px; font-size: 16px; }
-.product > p { font-size: 12px; opacity: .7; line-height: 1.6; min-height: 36px; }
-.nutri, .organic { display: flex; flex-wrap: wrap; gap: 5px; }
-.nutri span, .organic i { font-size: 11px; padding: 3px 7px; border-radius: 6px; background: rgba(127,127,127,.09); font-style: normal; }
-.organic i { background: rgba(89,201,140,.15); }
-.product-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; font-size: 11px; opacity: .9; }
-
-/* 个人中心 */
-.qa-log { max-height: 260px; overflow-y: auto; display: grid; gap: 8px; margin-bottom: 12px; }
-.qa { display: flex; gap: 10px; }
-.qa span { font-size: 11px; font-weight: 800; opacity: .7; flex: 0 0 24px; }
-.qa p { margin: 0; line-height: 1.7; font-size: 13px; }
-.qa-form { display: flex; gap: 8px; }
-.qa-form input { flex: 1; }
-.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-.chips button { border: 1px solid rgba(128,128,128,.25); background: transparent; color: inherit; border-radius: 99px; padding: 4px 10px; font-size: 11px; cursor: pointer; }
-.plan h4 { margin: 0 0 10px; font-size: 16px; }
-.plan h5 { margin: 12px 0 5px; font-size: 13px; }
-.plan ul { margin: 0; padding-left: 18px; line-height: 1.9; font-size: 13px; }
-.rec-list, .points-panel, .growth { margin-top: 14px; }
-.rec-list h4 { font-size: 13px; }
-.rec-list div { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed rgba(128,128,128,.18); font-size: 12px; }
-.points-panel, .growth { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.points-panel span, .growth span { font-size: 12px; opacity: .7; }
-.points-panel strong, .growth strong { font-size: 28px; }
-.growth .chart { flex: 1 1 220px; }
-.cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(128,128,128,.15); }
-.cart-item small { display: block; opacity: .6; }
-.qty { display: flex; align-items: center; gap: 10px; }
-.qty button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid rgba(128,128,128,.3); background: transparent; color: inherit; cursor: pointer; }
-.cart-total { margin-top: 14px; text-align: right; }
-.verdict { margin-bottom: 10px; border-left: 4px solid #59c98c; }
-.verdict span { font-size: 12px; font-weight: 700; }
-.verdict p { margin: 5px 0 0; font-size: 12px; line-height: 1.7; }
-
-/* ---------- 管理员主题（未来科技） ---------- */
-.theme-admin { background: #040a12; color: #d8f7ff; font-family: "SFMono-Regular", Consolas, "PingFang SC", monospace; position: relative; }
-.grid-bg { position: fixed; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(0,229,255,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,.055) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(circle at 50% 20%, #000, transparent 80%); }
-.theme-admin .topbar, .theme-admin .tabbar { background: rgba(4,10,18,.9); border-color: #12475a; }
-.theme-admin .tabbar { border-top: 1px solid #12475a; }
-.theme-admin .topbar { box-shadow: 0 0 30px rgba(0,229,255,.08); }
-.theme-admin .brand .logo { background: linear-gradient(145deg, #00e5ff, #7b5cff); color: #02121a; box-shadow: 0 0 18px rgba(0,229,255,.4); }
-.theme-admin .brand small { color: #4aa6bd; }
-.theme-admin .mode-pill { display: none; }
-.theme-admin .ghost-btn { color: #55d6f0; border-color: #1c657a; }
-.theme-admin .live { font-size: 10px; letter-spacing: 2px; color: #5fffd0; }
-.theme-admin .live i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #5fffd0; box-shadow: 0 0 10px #5fffd0; margin-right: 6px; }
-.admin-main { position: relative; z-index: 2; }
-.admin-head h1 { color: #e8fdff; text-shadow: 0 0 18px rgba(0,229,255,.35); }
-.admin-head p, .admin-head .kicker { color: #6ba9ba; }
-.admin-btn { background: linear-gradient(120deg, #00d8ff, #6a5cff); color: #02121a; border: none; box-shadow: 0 0 18px rgba(0,216,255,.25); }
-.admin-btn.ghost { background: transparent; border: 1px solid #1c657a; color: #55d6f0; box-shadow: none; }
-.admin-search { display: flex; gap: 8px; margin-bottom: 18px; }
-.admin-search input { background: #071722; border-color: #15485c; color: #d8f7ff; }
-.admin-search button { background: linear-gradient(120deg, #00b8d9, #5a5cff); white-space: nowrap; flex: 0 0 auto; padding: 0 20px; }
-.admin-stats { grid-template-columns: repeat(3, 1fr); }
-.admin-stats > div { background: rgba(5,22,32,.85); border-color: #15485c; box-shadow: inset 0 0 20px rgba(0,229,255,.05); }
-.admin-stats strong { color: #5fffd0; text-shadow: 0 0 12px rgba(95,255,208,.4); }
-.admin-table { border: 1px solid #15485c; border-radius: 12px; overflow: hidden; background: rgba(4,16,24,.8); }
-.admin-table .tr { display: grid; grid-template-columns: 1.5fr .7fr .7fr 2fr .8fr; gap: 10px; padding: 12px 14px; border-bottom: 1px solid #103646; font-size: 12px; align-items: center; }
-.admin-table .tr.head { background: rgba(0,229,255,.08); color: #68c8e0; letter-spacing: 1px; }
-.admin-table .tr:last-child { border-bottom: none; }
-.admin-table small { display: block; opacity: .55; margin-top: 3px; }
-.admin-table .mini { font-size: 11px; opacity: .8; }
-.ops { display: flex; gap: 6px; }
-.ops button, .uc-foot button { border: 1px solid #1c657a; background: rgba(0,229,255,.06); color: #7be6ff; border-radius: 6px; padding: 5px 9px; cursor: pointer; font-size: 11px; }
-.ops button:last-child { border-color: #7a3548; color: #ff9db3; }
-.user-grid, .cart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-.user-card, .cart-card { background: rgba(5,19,28,.85); border: 1px solid #15485c; border-radius: 14px; padding: 16px; box-shadow: inset 0 0 30px rgba(0,229,255,.04); }
-.user-card .avatar { background: linear-gradient(135deg, #00d8ff, #6a5cff); color: #04121a; }
-.uc-meta, .uc-kv { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
-.uc-meta span, .uc-kv span { border: 1px solid #15485c; border-radius: 6px; padding: 3px 8px; font-size: 11px; color: #9fd8e8; }
-.uc-plan { border-left: 2px solid #6a5cff; padding-left: 10px; font-size: 12px; }
-.uc-plan b { color: #9fb8ff; }
-.uc-foot { margin-top: 12px; display: flex; gap: 8px; }
-.cc-head { justify-content: space-between; }
-.cc-head span { color: #5f9eb0; font-size: 12px; }
-.cc-stat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
-.cc-stat > div { border: 1px solid #15485c; border-radius: 8px; padding: 8px; text-align: center; }
-.cc-stat span { display: block; font-size: 10px; color: #6ba9ba; }
-.cc-stat b { color: #5fffd0; font-size: 18px; }
-.cart-card ul { list-style: none; padding: 0; margin: 0; font-size: 12px; }
-.cart-card li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #103646; }
-.detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; }
-.detail-table > div { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 7px 0; border-bottom: 1px dashed rgba(128,128,128,.2); font-size: 11px; }
-
-/* ---------- 弹窗 / 提示 ---------- */
-.modal-mask { position: fixed; inset: 0; background: rgba(3,8,12,.68); display: grid; place-items: center; z-index: 100; padding: 18px; backdrop-filter: blur(4px); }
-.modal-card { background: #0d1c16; color: #eafff2; border: 1px solid #2d5c3e; border-radius: 16px; padding: 24px; width: min(560px, 100%); max-height: 86vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,.4); }
-.modal-card.wide { width: min(820px, 100%); }
-.modal-card h2 { margin: 0 0 12px; font-size: 21px; }
-.modal-card p { line-height: 1.7; opacity: .8; }
-.modal-card h4 { margin: 18px 0 8px; font-size: 13px; color: #9be6bb; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
-.demo-hint { display: block; margin-top: 12px; color: #7fb493; font-size: 11px; }
-.admin-modal { background: #061521; border-color: #1c657a; box-shadow: 0 0 40px rgba(0,229,255,.15); }
-.admin-modal h2 { color: #d8f7ff; }
-.admin-modal .fl input { background: #071c29; border-color: #1c657a; color: #d8f7ff; }
-.modal-card .fl input, .modal-card .fl textarea, .modal-card .fl select { background: rgba(127,127,127,.08); border: 1px solid rgba(128,128,128,.3); color: inherit; }
-.toast { position: fixed; left: 50%; bottom: 90px; transform: translate(-50%, 20px); background: #123c26; color: #eafff2; border: 1px solid #3f9d68; padding: 10px 18px; border-radius: 99px; font-size: 13px; opacity: 0; pointer-events: none; transition: .25s; z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
-.toast.show { opacity: 1; transform: translate(-50%, 0); }
-.toast.bad { background: #4a1f27; border-color: #a45062; }
-
-@media (max-width: 860px) {
-  .auth-wrap, .mode-grid, .product-grid, .user-grid, .cart-grid, .chart-grid { grid-template-columns: 1fr; }
-  .auth-aside { display: none; }
-  .form-grid, .admin-table .tr { grid-template-columns: repeat(2, 1fr); }
-  .quick-row, .compare-grid { grid-template-columns: repeat(2, 1fr); }
-  .admin-table .tr.head { display: none; }
-  .admin-table .tr > span { border-bottom: 1px dashed rgba(128,128,128,.15); padding: 4px 0; }
-  .page-head { align-items: flex-start; }
-  .main { padding: 20px 12px 30px; }
-}
-@media (max-width: 520px) {
-  .form-grid, .quick-row, .compare-grid, .photo-row, .check-grid { grid-template-columns: 1fr; }
-  .page-head { flex-direction: column; }
-  .topbar { padding: 0 14px; }
-  .tab { font-size: 10px; }
-  .detail-grid, .detail-table > div { grid-template-columns: repeat(2, 1fr); }
-}
-
-</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#F4F9F2" />
+<title>农小禾健康 · 一日三餐，顺时而食</title>
+<link rel="icon" href="img/logo.jpg" />
+<link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
-<div id="app"></div>
+
+<!-- ================= 登录 ================= -->
+<section class="screen active" id="screen-login">
+  <div class="login-wrap">
+    <div class="brand">
+      <div class="brand-mark">禾</div>
+      <div class="brand-eyebrow">NONG XIAO HE · WELLNESS</div>
+      <h1>农小禾健康</h1>
+      <p>一 日 三 餐 · 顺 时 而 食</p>
+    </div>
+
+    <div class="login-card">
+      <div class="role-tabs" id="role-tabs">
+        <button id="tab-user" class="on" onclick="App.roleTab('user')">普通用户登录</button>
+        <button id="tab-admin" class="hide" onclick="App.roleTab('admin')">管理员登录</button>
+      </div>
+      <h2>欢迎回来</h2>
+      <div class="sub">用手机号登录，开始你的健康陪伴</div>
+
+      <div class="field">
+        <label>手机号</label>
+        <input class="input num" id="login-phone" type="tel" inputmode="numeric" maxlength="11" placeholder="请输入 11 位手机号" autocomplete="tel" />
+      </div>
+
+      <div class="field">
+        <label>短信验证码</label>
+        <div class="input-row">
+          <input class="input num" id="login-code" type="tel" inputmode="numeric" maxlength="6" placeholder="6 位验证码" />
+          <button class="code-btn" id="btn-send-code">获取验证码</button>
+        </div>
+        <div class="code-tip" id="code-tip"></div>
+      </div>
+
+      <div class="checkline" id="login-consent-row">
+        <span class="checkbox" id="login-consent-box">
+          <svg viewBox="0 0 12 12" fill="none"><path d="M2 6.2 4.6 8.8 10 3.2" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>您同意我们使用您的基础信息为您提供健康管理服务</span>
+      </div>
+
+      <div class="mt-14">
+        <button class="btn btn-primary btn-block btn-lg" id="btn-login" disabled>登录 / 注册</button>
+      </div>
+
+
+      <div class="hint" style="margin-top:12px">未注册的手机号将自动创建账号 · 演示环境验证码在页面内显示</div>
+    </div>
+
+    <div class="login-foot">
+      登录即表示同意《隐私政策与免责声明》<br />
+      本应用提供的方案为健康参考，不替代医疗建议
+    </div>
+  </div>
+</section>
+
+<!-- ================= 管理员身份认证 ================= -->
+<section class="screen" id="screen-admin-auth">
+  <div class="aa-wrap">
+    <div class="aa-grid"></div>
+    <div class="aa-glow"></div>
+    <button class="aa-back" id="aa-back">← 返回登录</button>
+    <div class="aa-title">
+      <div class="shield">🛡️</div>
+      <h2>ADMIN VERIFY</h2>
+      <p>NONGXIAOHE · CONTROL CENTER</p>
+    </div>
+    <div class="aa-card">
+      <label>ACCESS CODE</label>
+      <input class="aa-input" id="admin-code" type="password" maxlength="12" placeholder="••••••" autocomplete="off" />
+      <button class="aa-btn" id="btn-admin-verify">验 证 并 进 入</button>
+      <div class="aa-err" id="admin-err"></div>
+    </div>
+    <div style="text-align:center;margin-top:22px;font-size:.62rem;letter-spacing:2px;color:rgba(160,220,185,.35);font-family:ui-monospace,monospace">
+      仅限授权运营人员 · 所有操作将被记录
+    </div>
+  </div>
+</section>
+
+<!-- ================= 问卷 ================= -->
+<section class="screen" id="screen-quiz">
+  <div class="quiz-top">
+    <div class="row">
+      <button class="quiz-back" id="quiz-back">←</button>
+      <span class="tiny muted" id="quiz-top-label">定制我的方案</span>
+      <span class="tiny muted" id="quiz-top-step">1 / 5</span>
+    </div>
+    <div class="progress"><i id="quiz-progress" style="width:20%"></i></div>
+  </div>
+  <div class="quiz-body" id="quiz-body"></div>
+  <div class="quiz-foot" id="quiz-foot"></div>
+</section>
+
+<!-- ================= 主应用 ================= -->
+<section class="screen" id="screen-main">
+  <div id="view-home" class="page"></div>
+  <div id="view-records" class="page"></div>
+  <div id="view-market" class="page"></div>
+  <div id="view-profile" class="page"></div>
+
+  <nav class="tabbar" id="tabbar">
+    <button data-tab="home" class="on">
+      <svg class="ti-ico" viewBox="0 0 24 24"><path d="M20 4.5C20 13 14.2 18.5 5 19c0-8.8 5.8-14.5 15-14.5Z"/><path d="M4 20.5c2.4-5.4 6-9 11-11.4"/></svg>
+      陪伴
+    </button>
+    <button data-tab="records">
+      <svg class="ti-ico" viewBox="0 0 24 24"><path d="M4.5 5.2c2.6-1 5.6-.8 7.5.8 1.9-1.6 4.9-1.8 7.5-.8v13.4c-2.6-1-5.6-.8-7.5.8-1.9-1.6-4.9-1.8-7.5-.8V5.2Z"/><path d="M12 6v13.4"/></svg>
+      记录
+    </button>
+    <button data-tab="market">
+      <svg class="ti-ico" viewBox="0 0 24 24"><path d="M3.8 9h16.4l-1.7 10.2H5.5L3.8 9Z"/><path d="M8.8 9V6.4a3.2 3.2 0 0 1 6.4 0V9"/></svg>
+      慧选
+    </button>
+    <button data-tab="profile">
+      <svg class="ti-ico" viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.4"/><path d="M4.8 20c1.3-3.7 4-5.6 7.2-5.6s5.9 1.9 7.2 5.6"/></svg>
+      我的
+    </button>
+  </nav>
+</section>
+
+<!-- ================= 方案页 ================= -->
+<section class="screen" id="screen-plan">
+  <div class="page" id="view-plan"></div>
+</section>
+
+<!-- ================= 商品详情 ================= -->
+<section class="screen" id="screen-product">
+  <div class="page" id="view-product"></div>
+</section>
+
+<!-- ================= 树洞 ================= -->
+<section class="screen" id="screen-treehole">
+  <div class="page" id="view-treehole"></div>
+</section>
+
+<!-- ================= 管理员后台 ================= -->
+<section class="screen" id="screen-admin">
+  <div class="admin-app">
+    <header class="adm-top">
+      <div class="adm-logo"><img src="img/logo.jpg" alt="" /></div>
+      <div class="adm-title">农小禾 · 运营中台<span>CONTROL CENTER v1.0</span></div>
+      <div style="flex:1"></div>
+      <div class="adm-live"><i></i>SYSTEM ONLINE</div>
+      <button class="adm-btn ghost" id="btn-admin-exit" style="margin-left:10px">退出</button>
+    </header>
+    <nav class="adm-nav" id="adm-nav">
+      <button data-ap="products" class="on">▍ 慧选产品</button>
+      <button data-ap="users">▍ 健康档案</button>
+      <button data-ap="wishes">▍ 心愿单汇总</button>
+      <button data-ap="orders">▍ 订单管理</button>
+      <button data-ap="square">▍ 广场管理</button>
+    </nav>
+    <main class="adm-body">
+      <div class="adm-panel on" id="adm-panel-products"></div>
+      <div class="adm-panel" id="adm-panel-users"></div>
+      <div class="adm-panel" id="adm-panel-wishes"></div>
+      <div class="adm-panel" id="adm-panel-orders"></div>
+      <div class="adm-panel" id="adm-panel-square"></div>
+    </main>
+  </div>
+</section>
+
+<!-- 桌面端品牌侧栏（仅在宽屏显示） -->
+<aside class="desk-aside" aria-hidden="true">
+  <div class="da-brand">
+    <div class="da-mark">禾</div>
+    <div>
+      <h1>农小禾健康</h1>
+      <p>一 日 三 餐 · 顺 时 而 食</p>
+    </div>
+  </div>
+  <p class="da-lead">不纠结吃什么。<br/>6 个问题，配好你的一周。</p>
+  <ul class="da-points">
+    <li><span class="da-dot"></span>按你的身体数据与预算配餐，算到每一元</li>
+    <li><span class="da-dot"></span>忌口、过敏、慢病禁忌硬过滤</li>
+    <li><span class="da-dot"></span>小禾 AI 记得你的口味，随时能聊</li>
+  </ul>
+  <div class="da-qr">
+    <img src="img/qr.png" alt="扫码在手机打开" />
+    <div><b>手机扫码打开</b><span>微信扫一扫，体验更接近真实 App</span></div>
+  </div>
+  <div class="da-foot">演示版本 · 方案仅供健康参考</div>
+</aside>
+<div class="desk-vertical" aria-hidden="true">顺 时 而 食 · 不 时 不 食</div>
+
 <div id="modal-root"></div>
-<div id="toast" class="toast" aria-live="polite"></div>
-<script>
-/* 农小禾 Agent · 冻结的交付初始数据（3 用户 / 10 产品 / 2 帖子） */
-window.NXH_INITIAL_DATA = {"version":1,"users":[{"id":"u_demo_fit","name":"林岚","phone":"13900000001","password":"123456","role":"user","mode":"fitness","createdAt":"2026-09-24","profile":{"gender":"female","age":29,"height":165,"weight":64.2,"goal":"减脂","targetWeight":56,"targetBodyFat":23,"medical":""},"records":[{"date":"2026-11-19","weight":64.2,"bodyFat":29.5,"muscle":25.8,"waist":78,"hip":96,"restingHR":72,"visceralFat":8,"bmr":1320,"water":55,"bone":2.6,"sleepHours":7,"fatigue":5,"trainingLoad":3,"whr":0.81,"glucose":5.1,"bpSys":116,"bpDia":74},{"date":"2026-11-12","weight":64,"bodyFat":29.4,"muscle":25.9,"waist":77.8,"hip":96,"restingHR":71.8,"visceralFat":7.9,"bmr":1322,"water":55.1,"bone":2.6,"sleepHours":7,"fatigue":5,"trainingLoad":3,"whr":0.81,"glucose":5.1,"bpSys":116,"bpDia":74},{"date":"2026-11-05","weight":63.8,"bodyFat":29.2,"muscle":26,"waist":77.6,"hip":95.9,"restingHR":71.5,"visceralFat":7.8,"bmr":1324,"water":55.2,"bone":2.6,"sleepHours":7,"fatigue":5,"trainingLoad":3,"whr":0.81,"glucose":5.1,"bpSys":116,"bpDia":74},{"date":"2026-10-29","weight":63.7,"bodyFat":29.1,"muscle":26,"waist":77.3,"hip":95.9,"restingHR":71.3,"visceralFat":7.6,"bmr":1326,"water":55.3,"bone":2.6,"sleepHours":7,"fatigue":4,"trainingLoad":3,"whr":0.81,"glucose":5.1,"bpSys":116,"bpDia":74},{"date":"2026-10-22","weight":63.5,"bodyFat":28.9,"muscle":26.1,"waist":77.1,"hip":95.8,"restingHR":71,"visceralFat":7.5,"bmr":1328,"water":55.4,"bone":2.6,"sleepHours":7,"fatigue":4,"trainingLoad":3,"whr":0.8,"glucose":5.1,"bpSys":116,"bpDia":74},{"date":"2026-10-15","weight":63.3,"bodyFat":28.8,"muscle":26.2,"waist":76.9,"hip":95.8,"restingHR":70.8,"visceralFat":7.4,"bmr":1330,"water":55.5,"bone":2.6,"sleepHours":7,"fatigue":4,"trainingLoad":3,"whr":0.8,"glucose":5.1,"bpSys":116,"bpDia":74},{"date":"2026-10-08","weight":63.1,"bodyFat":28.7,"muscle":26.3,"waist":76.7,"hip":95.7,"restingHR":70.5,"visceralFat":7.3,"bmr":1332,"water":55.6,"bone":2.6,"sleepHours":7,"fatigue":3,"trainingLoad":3,"whr":0.8,"glucose":5.1,"bpSys":116,"bpDia":74},{"date":"2026-10-01","weight":62.9,"bodyFat":28.5,"muscle":26.4,"waist":76.5,"hip":95.7,"restingHR":70.3,"visceralFat":7.2,"bmr":1334,"water":55.7,"bone":2.6,"sleepHours":7,"fatigue":3,"trainingLoad":3,"whr":0.8,"glucose":5.1,"bpSys":116,"bpDia":74}],"photos":[],"healthDaily":[{"date":"2026-11-19","bpSys":116,"bpDia":74,"hr":72,"glucose":5.1,"sleepMinutes":420,"wakeups":0},{"date":"2026-11-18","bpSys":117,"bpDia":74,"hr":73,"glucose":5.1,"sleepMinutes":415,"wakeups":1},{"date":"2026-11-17","bpSys":116,"bpDia":74,"hr":74,"glucose":5.1,"sleepMinutes":410,"wakeups":0},{"date":"2026-11-16","bpSys":117,"bpDia":74,"hr":75,"glucose":5.1,"sleepMinutes":405,"wakeups":1},{"date":"2026-11-15","bpSys":116,"bpDia":74,"hr":76,"glucose":5.1,"sleepMinutes":400,"wakeups":0},{"date":"2026-11-14","bpSys":117,"bpDia":74,"hr":77,"glucose":5.1,"sleepMinutes":395,"wakeups":1},{"date":"2026-11-13","bpSys":116,"bpDia":74,"hr":78,"glucose":5.1,"sleepMinutes":390,"wakeups":0}],"healthTests":[{"date":"2026-11-19","balance":22,"calf":34,"cognition":3,"breathHold":32,"reach":2,"sitToStand":9},{"date":"2026-11-12","balance":23,"calf":34,"cognition":3,"breathHold":33,"reach":2,"sitToStand":8.7},{"date":"2026-11-05","balance":24,"calf":34,"cognition":3,"breathHold":34,"reach":2,"sitToStand":8.4},{"date":"2026-10-29","balance":25,"calf":34,"cognition":3,"breathHold":35,"reach":2,"sitToStand":8.1}],"symptoms":[],"meds":{"onTime":"是","missed":"否","adverse":""},"points":320,"cart":[{"productId":"p1","qty":1},{"productId":"p3","qty":2}],"reminders":{}},{"id":"u_demo_muscle","name":"周野","phone":"13900000002","password":"123456","role":"user","mode":"fitness","createdAt":"2026-09-24","profile":{"gender":"male","age":34,"height":178,"weight":72.4,"goal":"增肌","targetWeight":78,"targetBodyFat":14,"medical":""},"records":[{"date":"2026-11-19","weight":72.4,"bodyFat":18.2,"muscle":34.6,"waist":82,"hip":96,"restingHR":64,"visceralFat":6,"bmr":1660,"water":60,"bone":3.1,"sleepHours":7.5,"fatigue":4,"trainingLoad":4,"whr":0.85,"glucose":5.3,"bpSys":122,"bpDia":78},{"date":"2026-11-12","weight":72.2,"bodyFat":18.1,"muscle":34.7,"waist":81.8,"hip":96,"restingHR":63.8,"visceralFat":5.9,"bmr":1662,"water":60.1,"bone":3.1,"sleepHours":7.5,"fatigue":4,"trainingLoad":4,"whr":0.85,"glucose":5.3,"bpSys":122,"bpDia":78},{"date":"2026-11-05","weight":72,"bodyFat":17.9,"muscle":34.8,"waist":81.6,"hip":95.9,"restingHR":63.5,"visceralFat":5.8,"bmr":1664,"water":60.2,"bone":3.1,"sleepHours":7.5,"fatigue":4,"trainingLoad":4,"whr":0.85,"glucose":5.3,"bpSys":122,"bpDia":78},{"date":"2026-10-29","weight":71.9,"bodyFat":17.8,"muscle":34.8,"waist":81.3,"hip":95.9,"restingHR":63.3,"visceralFat":5.6,"bmr":1666,"water":60.3,"bone":3.1,"sleepHours":7.5,"fatigue":3,"trainingLoad":4,"whr":0.85,"glucose":5.3,"bpSys":122,"bpDia":78},{"date":"2026-10-22","weight":71.7,"bodyFat":17.6,"muscle":34.9,"waist":81.1,"hip":95.8,"restingHR":63,"visceralFat":5.5,"bmr":1668,"water":60.4,"bone":3.1,"sleepHours":7.5,"fatigue":3,"trainingLoad":4,"whr":0.85,"glucose":5.3,"bpSys":122,"bpDia":78},{"date":"2026-10-15","weight":71.5,"bodyFat":17.5,"muscle":35,"waist":80.9,"hip":95.8,"restingHR":62.8,"visceralFat":5.4,"bmr":1670,"water":60.5,"bone":3.1,"sleepHours":7.5,"fatigue":3,"trainingLoad":4,"whr":0.84,"glucose":5.3,"bpSys":122,"bpDia":78},{"date":"2026-10-08","weight":71.3,"bodyFat":17.4,"muscle":35.1,"waist":80.7,"hip":95.7,"restingHR":62.5,"visceralFat":5.3,"bmr":1672,"water":60.6,"bone":3.1,"sleepHours":7.5,"fatigue":2,"trainingLoad":4,"whr":0.84,"glucose":5.3,"bpSys":122,"bpDia":78},{"date":"2026-10-01","weight":71.1,"bodyFat":17.2,"muscle":35.2,"waist":80.5,"hip":95.7,"restingHR":62.3,"visceralFat":5.2,"bmr":1674,"water":60.7,"bone":3.1,"sleepHours":7.5,"fatigue":2,"trainingLoad":4,"whr":0.84,"glucose":5.3,"bpSys":122,"bpDia":78}],"photos":[],"healthDaily":[{"date":"2026-11-19","bpSys":122,"bpDia":78,"hr":64,"glucose":5.3,"sleepMinutes":450,"wakeups":0},{"date":"2026-11-18","bpSys":123,"bpDia":78,"hr":65,"glucose":5.3,"sleepMinutes":445,"wakeups":1},{"date":"2026-11-17","bpSys":122,"bpDia":78,"hr":66,"glucose":5.3,"sleepMinutes":440,"wakeups":0},{"date":"2026-11-16","bpSys":123,"bpDia":78,"hr":67,"glucose":5.3,"sleepMinutes":435,"wakeups":1},{"date":"2026-11-15","bpSys":122,"bpDia":78,"hr":68,"glucose":5.3,"sleepMinutes":430,"wakeups":0},{"date":"2026-11-14","bpSys":123,"bpDia":78,"hr":69,"glucose":5.3,"sleepMinutes":425,"wakeups":1},{"date":"2026-11-13","bpSys":122,"bpDia":78,"hr":70,"glucose":5.3,"sleepMinutes":420,"wakeups":0}],"healthTests":[{"date":"2026-11-19","balance":26,"calf":37,"cognition":3,"breathHold":40,"reach":-1,"sitToStand":8},{"date":"2026-11-12","balance":27,"calf":37,"cognition":3,"breathHold":41,"reach":-1,"sitToStand":7.7},{"date":"2026-11-05","balance":28,"calf":37,"cognition":3,"breathHold":42,"reach":-1,"sitToStand":7.4},{"date":"2026-10-29","balance":29,"calf":37,"cognition":3,"breathHold":43,"reach":-1,"sitToStand":7.1}],"symptoms":[],"meds":{"onTime":"是","missed":"否","adverse":""},"points":180,"cart":[{"productId":"p1","qty":1},{"productId":"p3","qty":2}],"reminders":{}},{"id":"u_demo_health","name":"陈桂芳","phone":"13900000003","password":"123456","role":"user","mode":"health","createdAt":"2026-09-24","profile":{"gender":"female","age":68,"height":158,"weight":61.5,"goal":"维持","targetWeight":58,"targetBodyFat":27,"medical":"高血压，服用降压药"},"records":[{"date":"2026-11-19","weight":61.5,"bodyFat":31.2,"muscle":22.4,"waist":84,"hip":98,"restingHR":76,"visceralFat":10,"bmr":1180,"water":52,"bone":2.2,"sleepHours":6,"fatigue":6,"trainingLoad":2,"whr":0.86,"glucose":6.1,"bpSys":138,"bpDia":84},{"date":"2026-11-12","weight":61.3,"bodyFat":31.1,"muscle":22.5,"waist":83.8,"hip":98,"restingHR":75.8,"visceralFat":9.9,"bmr":1182,"water":52.1,"bone":2.2,"sleepHours":6,"fatigue":6,"trainingLoad":2,"whr":0.86,"glucose":6.1,"bpSys":138,"bpDia":84},{"date":"2026-11-05","weight":61.1,"bodyFat":30.9,"muscle":22.6,"waist":83.6,"hip":97.9,"restingHR":75.5,"visceralFat":9.8,"bmr":1184,"water":52.2,"bone":2.2,"sleepHours":6,"fatigue":6,"trainingLoad":2,"whr":0.85,"glucose":6.1,"bpSys":138,"bpDia":84},{"date":"2026-10-29","weight":61,"bodyFat":30.8,"muscle":22.6,"waist":83.3,"hip":97.9,"restingHR":75.3,"visceralFat":9.6,"bmr":1186,"water":52.3,"bone":2.2,"sleepHours":6,"fatigue":5,"trainingLoad":2,"whr":0.85,"glucose":6.1,"bpSys":138,"bpDia":84},{"date":"2026-10-22","weight":60.8,"bodyFat":30.6,"muscle":22.7,"waist":83.1,"hip":97.8,"restingHR":75,"visceralFat":9.5,"bmr":1188,"water":52.4,"bone":2.2,"sleepHours":6,"fatigue":5,"trainingLoad":2,"whr":0.85,"glucose":6.1,"bpSys":138,"bpDia":84},{"date":"2026-10-15","weight":60.6,"bodyFat":30.5,"muscle":22.8,"waist":82.9,"hip":97.8,"restingHR":74.8,"visceralFat":9.4,"bmr":1190,"water":52.5,"bone":2.2,"sleepHours":6,"fatigue":5,"trainingLoad":2,"whr":0.85,"glucose":6.1,"bpSys":138,"bpDia":84},{"date":"2026-10-08","weight":60.4,"bodyFat":30.4,"muscle":22.9,"waist":82.7,"hip":97.7,"restingHR":74.5,"visceralFat":9.3,"bmr":1192,"water":52.6,"bone":2.2,"sleepHours":6,"fatigue":4,"trainingLoad":2,"whr":0.85,"glucose":6.1,"bpSys":138,"bpDia":84},{"date":"2026-10-01","weight":60.2,"bodyFat":30.2,"muscle":23,"waist":82.5,"hip":97.7,"restingHR":74.3,"visceralFat":9.2,"bmr":1194,"water":52.7,"bone":2.2,"sleepHours":6,"fatigue":4,"trainingLoad":2,"whr":0.84,"glucose":6.1,"bpSys":138,"bpDia":84}],"photos":[],"healthDaily":[{"date":"2026-11-19","bpSys":138,"bpDia":84,"hr":76,"glucose":6.1,"sleepMinutes":360,"wakeups":0},{"date":"2026-11-18","bpSys":139,"bpDia":84,"hr":77,"glucose":6.1,"sleepMinutes":355,"wakeups":1},{"date":"2026-11-17","bpSys":138,"bpDia":84,"hr":78,"glucose":6.1,"sleepMinutes":350,"wakeups":0},{"date":"2026-11-16","bpSys":139,"bpDia":84,"hr":79,"glucose":6.1,"sleepMinutes":345,"wakeups":1},{"date":"2026-11-15","bpSys":138,"bpDia":84,"hr":80,"glucose":6.1,"sleepMinutes":340,"wakeups":0},{"date":"2026-11-14","bpSys":139,"bpDia":84,"hr":81,"glucose":6.1,"sleepMinutes":335,"wakeups":1},{"date":"2026-11-13","bpSys":138,"bpDia":84,"hr":82,"glucose":6.1,"sleepMinutes":330,"wakeups":0}],"healthTests":[{"date":"2026-11-19","balance":8,"calf":31,"cognition":2,"breathHold":18,"reach":-4,"sitToStand":13},{"date":"2026-11-12","balance":9,"calf":31,"cognition":2,"breathHold":19,"reach":-4,"sitToStand":12.7},{"date":"2026-11-05","balance":10,"calf":31,"cognition":2,"breathHold":20,"reach":-4,"sitToStand":12.4},{"date":"2026-10-29","balance":11,"calf":31,"cognition":2,"breathHold":21,"reach":-4,"sitToStand":12.1}],"symptoms":[],"meds":{"onTime":"是","missed":"否","adverse":""},"points":90,"cart":[{"productId":"p1","qty":1},{"productId":"p3","qty":2}],"reminders":{}}],"products":[{"id":"p1","name":"有机燕麦片","category":"全谷主食","price":39.9,"points":120,"nutrition":{"膳食纤维":"10.6g/100g","蛋白质":"13g/100g","碳水":"62g/100g","脂肪":"6g/100g","钠":"2mg/100g"},"organic":["有机认证","无添加糖","非转基因"],"tags":["控糖","减脂","肠道"],"desc":"慢升糖全谷，适合作为早餐主食替代。"},{"id":"p2","name":"低脂高蛋白鸡胸肉","category":"优质蛋白","price":58,"points":180,"nutrition":{"蛋白质":"24g/100g","脂肪":"1.9g/100g","钠":"45mg/100g","热量":"118kcal/100g"},"organic":["无抗养殖","冷链锁鲜"],"tags":["增肌","减脂","高蛋白"],"desc":"低脂高蛋白，增肌期与减脂期均适用。"},{"id":"p3","name":"无糖希腊酸奶","category":"乳品","price":32,"points":100,"nutrition":{"蛋白质":"9g/100g","碳水":"4g/100g","钙":"120mg/100g","糖":"0g"},"organic":["零蔗糖","生牛乳发酵"],"tags":["增肌","肠道","控糖"],"desc":"高蛋白零蔗糖，可作加餐。"},{"id":"p4","name":"有机南瓜籽","category":"坚果种子","price":46,"points":150,"nutrition":{"镁":"520mg/100g","锌":"7.8mg/100g","蛋白质":"30g/100g","脂肪":"49g/100g"},"organic":["有机认证","低温烘焙"],"tags":["睡眠","男性健康","抗氧化"],"desc":"富含镁与锌，注意每日一小把即可。"},{"id":"p5","name":"深海鱼油软胶囊","category":"膳食补充","price":89,"points":260,"nutrition":{"EPA":"180mg/粒","DHA":"120mg/粒","维生素E":"2mg/粒"},"organic":["MSC认证","高纯度"],"tags":["心血管","认知","抗炎"],"desc":"Omega-3 补充，服用抗凝药物者请先咨询医生。"},{"id":"p6","name":"高钙低脂奶粉","category":"乳品","price":68,"points":210,"nutrition":{"钙":"1200mg/100g","蛋白质":"20g/100g","脂肪":"3g/100g","维生素D":"5μg/100g"},"organic":["高钙配方","低脂"],"tags":["骨量","中老年","肌肉"],"desc":"钙与维生素D组合，配合力量训练更合适。"},{"id":"p7","name":"洋车前子壳粉","category":"膳食纤维","price":42,"points":130,"nutrition":{"膳食纤维":"80g/100g","热量":"200kcal/100g","糖":"0g"},"organic":["天然来源","无添加"],"tags":["控糖","肠道","减脂"],"desc":"可溶性膳食纤维，需足量饮水后服用。"},{"id":"p8","name":"蓝莓冻干粉","category":"果蔬","price":75,"points":230,"nutrition":{"花青素":"120mg/100g","维生素C":"35mg/100g","膳食纤维":"8g/100g"},"organic":["有机认证","冻干锁鲜"],"tags":["抗氧化","认知","视力"],"desc":"花青素补充，建议搭配均衡饮食。"},{"id":"p9","name":"无盐混合坚果","category":"坚果种子","price":52,"points":160,"nutrition":{"不饱和脂肪":"42g/100g","镁":"160mg/100g","蛋白质":"18g/100g","钠":"5mg/100g"},"organic":["无盐","非转基因"],"tags":["心血管","控盐","中老年"],"desc":"无盐配方，适合需要控制钠摄入的人群。"},{"id":"p10","name":"乳清蛋白粉","category":"膳食补充","price":168,"points":480,"nutrition":{"蛋白质":"80g/100g","亮氨酸":"8g/100g","糖":"2g/100g"},"organic":["乳清分离","低糖"],"tags":["增肌","高蛋白","恢复"],"desc":"训练后补充蛋白质，肾功能异常者慎用。"}],"posts":[{"id":"post_1","authorId":"u_demo_fit","title":"第 4 周减脂执行记录","content":"晨起空腹称重、晚餐碳水减半、每周三次力量训练。第 4 周体脂从 29.5 降到 27.4，继续坚持。","plan":"减脂周期方案：力量 3 次/周 + 快走 2 次/周；饮食每餐一拳主食、一掌蛋白、两拳蔬菜。","createdAt":"2026-11-17","likes":["u_demo_muscle"],"comments":[{"userId":"u_demo_muscle","text":"节奏很稳，学习了。","date":"2026-11-18"}],"shares":1,"checkins":[{"userId":"u_demo_fit","date":"2026-11-19"}]},{"id":"post_2","authorId":"u_demo_health","title":"血压与血糖的每日记录","content":"固定早晨测量血压与空腹血糖，记录四周后给医生看趋势，比单次数值更有价值。","plan":"中老年健康管理：每日血压心率、每周一次平衡与小腿围自测。","createdAt":"2026-11-15","likes":["u_demo_fit","u_demo_muscle"],"comments":[],"shares":0,"checkins":[{"userId":"u_demo_health","date":"2026-11-18"},{"userId":"u_demo_health","date":"2026-11-19"}]}],"session":null};
-
-</script>
-<script>
-/* 农小禾 Agent · 本地数据层（localStorage，file:// 可用） */
-(function () {
-  'use strict';
-  var KEY = 'nongxiaohe.agent.v2';
-  var memoryFallback = null;
-
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
-  function dateStr(offsetDays) {
-    var d = new Date();
-    d.setDate(d.getDate() - (offsetDays || 0));
-    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  }
-  function uid(prefix) {
-    return (prefix || 'id') + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
-  }
-  function deepCopy(o) { return JSON.parse(JSON.stringify(o)); }
-
-  var ADMIN_PHONE = '18890013415';
-  var ADMIN_CODE = '888888';
-  var LOGIN_CODE = '888888';
-
-  function seedProducts() {
-    return [
-      { id: 'p1', name: '有机燕麦片', category: '全谷主食', price: 39.9, points: 120,
-        nutrition: { 膳食纤维: '10.6g/100g', 蛋白质: '13g/100g', 碳水: '62g/100g', 脂肪: '6g/100g', 钠: '2mg/100g' },
-        organic: ['有机认证', '无添加糖', '非转基因'], tags: ['控糖', '减脂', '肠道'], desc: '慢升糖全谷，适合作为早餐主食替代。' },
-      { id: 'p2', name: '低脂高蛋白鸡胸肉', category: '优质蛋白', price: 58, points: 180,
-        nutrition: { 蛋白质: '24g/100g', 脂肪: '1.9g/100g', 钠: '45mg/100g', 热量: '118kcal/100g' },
-        organic: ['无抗养殖', '冷链锁鲜'], tags: ['增肌', '减脂', '高蛋白'], desc: '低脂高蛋白，增肌期与减脂期均适用。' },
-      { id: 'p3', name: '无糖希腊酸奶', category: '乳品', price: 32, points: 100,
-        nutrition: { 蛋白质: '9g/100g', 碳水: '4g/100g', 钙: '120mg/100g', 糖: '0g' },
-        organic: ['零蔗糖', '生牛乳发酵'], tags: ['增肌', '肠道', '控糖'], desc: '高蛋白零蔗糖，可作加餐。' },
-      { id: 'p4', name: '有机南瓜籽', category: '坚果种子', price: 46, points: 150,
-        nutrition: { 镁: '520mg/100g', 锌: '7.8mg/100g', 蛋白质: '30g/100g', 脂肪: '49g/100g' },
-        organic: ['有机认证', '低温烘焙'], tags: ['睡眠', '男性健康', '抗氧化'], desc: '富含镁与锌，注意每日一小把即可。' },
-      { id: 'p5', name: '深海鱼油软胶囊', category: '膳食补充', price: 89, points: 260,
-        nutrition: { EPA: '180mg/粒', DHA: '120mg/粒', 维生素E: '2mg/粒' },
-        organic: ['MSC认证', '高纯度'], tags: ['心血管', '认知', '抗炎'], desc: 'Omega-3 补充，服用抗凝药物者请先咨询医生。' },
-      { id: 'p6', name: '高钙低脂奶粉', category: '乳品', price: 68, points: 210,
-        nutrition: { 钙: '1200mg/100g', 蛋白质: '20g/100g', 脂肪: '3g/100g', 维生素D: '5μg/100g' },
-        organic: ['高钙配方', '低脂'], tags: ['骨量', '中老年', '肌肉'], desc: '钙与维生素D组合，配合力量训练更合适。' },
-      { id: 'p7', name: '洋车前子壳粉', category: '膳食纤维', price: 42, points: 130,
-        nutrition: { 膳食纤维: '80g/100g', 热量: '200kcal/100g', 糖: '0g' },
-        organic: ['天然来源', '无添加'], tags: ['控糖', '肠道', '减脂'], desc: '可溶性膳食纤维，需足量饮水后服用。' },
-      { id: 'p8', name: '蓝莓冻干粉', category: '果蔬', price: 75, points: 230,
-        nutrition: { 花青素: '120mg/100g', 维生素C: '35mg/100g', 膳食纤维: '8g/100g' },
-        organic: ['有机认证', '冻干锁鲜'], tags: ['抗氧化', '认知', '视力'], desc: '花青素补充，建议搭配均衡饮食。' },
-      { id: 'p9', name: '无盐混合坚果', category: '坚果种子', price: 52, points: 160,
-        nutrition: { 不饱和脂肪: '42g/100g', 镁: '160mg/100g', 蛋白质: '18g/100g', 钠: '5mg/100g' },
-        organic: ['无盐', '非转基因'], tags: ['心血管', '控盐', '中老年'], desc: '无盐配方，适合需要控制钠摄入的人群。' },
-      { id: 'p10', name: '乳清蛋白粉', category: '膳食补充', price: 168, points: 480,
-        nutrition: { 蛋白质: '80g/100g', 亮氨酸: '8g/100g', 糖: '2g/100g' },
-        organic: ['乳清分离', '低糖'], tags: ['增肌', '高蛋白', '恢复'], desc: '训练后补充蛋白质，肾功能异常者慎用。' }
-    ];
-  }
-
-  function makeUser(id, name, phone, gender, age, height, goal, base) {
-    var records = [];
-    var metrics = [
-      ['weight', base.weight, -0.18], ['bodyFat', base.bodyFat, -0.14], ['muscle', base.muscle, 0.08],
-      ['waist', base.waist, -0.22], ['hip', base.hip, -0.05], ['restingHR', base.restingHR, -0.25],
-      ['visceralFat', base.visceralFat, -0.12]
-    ];
-    for (var w = 0; w < 8; w++) {
-      var r = { date: dateStr(w * 7) };
-      metrics.forEach(function (m) {
-        var v = m[1] + m[2] * w;
-        r[m[0]] = Math.round(v * 10) / 10;
-      });
-      r.bmr = Math.round(base.bmr + w * 2);
-      r.water = Math.round((base.water + w * 0.1) * 10) / 10;
-      r.bone = base.bone;
-      r.sleepHours = base.sleepHours;
-      r.fatigue = Math.max(2, base.fatigue - Math.floor(w / 3));
-      r.trainingLoad = base.trainingLoad;
-      r.chest = base.chest; r.upperArm = base.upperArm; r.thigh = base.thigh;
-      r.whr = Math.round((r.waist / r.hip) * 100) / 100;
-      r.glucose = base.glucose; r.bpSys = base.bpSys; r.bpDia = base.bpDia;
-      records.push(r);
-    }
-    var daily = [], tests = [];
-    for (var d = 0; d < 7; d++) {
-      daily.push({ date: dateStr(d), bpSys: base.bpSys + (d % 2), bpDia: base.bpDia, hr: base.restingHR + d,
-        glucose: base.glucose, sleepMinutes: base.sleepMinutes - d * 5, wakeups: d % 2 });
-    }
-    for (var t = 0; t < 4; t++) {
-      tests.push({ date: dateStr(t * 7), balance: base.balance + t, calf: base.calf, cognition: base.cognition,
-        breathHold: base.breathHold + t, reach: base.reach, sitToStand: base.sitToStand - t * 0.3 });
-    }
-    return {
-      id: id, name: name, phone: phone, password: '123456', role: 'user', mode: null,
-      createdAt: dateStr(56),
-      profile: { gender: gender, age: age, height: height, weight: base.weight, goal: goal,
-        targetWeight: base.targetWeight, targetBodyFat: base.targetBodyFat, medical: base.medical || '' },
-      records: records, photos: [],
-      healthDaily: daily, healthTests: tests,
-      symptoms: [], meds: { onTime: '是', missed: '否', adverse: '' },
-      points: base.points || 0, cart: [{ productId: 'p1', qty: 1 }, { productId: 'p3', qty: 2 }],
-      reminders: {}
-    };
-  }
-
-  function seed() {
-    if (window.NXH_INITIAL_DATA && window.NXH_INITIAL_DATA.users && window.NXH_INITIAL_DATA.products) {
-      return deepCopy(window.NXH_INITIAL_DATA);
-    }
-    var users = [
-      makeUser('u_demo_fit', '林岚', '13900000001', 'female', 29, 165, '减脂', {
-        weight: 64.2, bodyFat: 29.5, muscle: 25.8, waist: 78, hip: 96, restingHR: 72,
-        visceralFat: 8, bmr: 1320, water: 55, bone: 2.6, sleepHours: 7, fatigue: 5,
-        trainingLoad: 3, glucose: 5.1, bpSys: 116, bpDia: 74, targetWeight: 56, targetBodyFat: 23,
-        points: 320, sleepMinutes: 420, balance: 22, calf: 34, cognition: 3, breathHold: 32,
-        reach: 2, sitToStand: 9
-      }),
-      makeUser('u_demo_muscle', '周野', '13900000002', 'male', 34, 178, '增肌', {
-        weight: 72.4, bodyFat: 18.2, muscle: 34.6, waist: 82, hip: 96, restingHR: 64,
-        visceralFat: 6, bmr: 1660, water: 60, bone: 3.1, sleepHours: 7.5, fatigue: 4,
-        trainingLoad: 4, glucose: 5.3, bpSys: 122, bpDia: 78, targetWeight: 78, targetBodyFat: 14,
-        points: 180, sleepMinutes: 450, balance: 26, calf: 37, cognition: 3, breathHold: 40,
-        reach: -1, sitToStand: 8
-      }),
-      makeUser('u_demo_health', '陈桂芳', '13900000003', 'female', 68, 158, '维持', {
-        weight: 61.5, bodyFat: 31.2, muscle: 22.4, waist: 84, hip: 98, restingHR: 76,
-        visceralFat: 10, bmr: 1180, water: 52, bone: 2.2, sleepHours: 6, fatigue: 6,
-        trainingLoad: 2, glucose: 6.1, bpSys: 138, bpDia: 84, targetWeight: 58, targetBodyFat: 27,
-        points: 90, sleepMinutes: 360, balance: 8, calf: 31, cognition: 2, breathHold: 18,
-        reach: -4, sitToStand: 13, medical: '高血压，服用降压药'
-      })
-    ];
-    users[0].mode = 'fitness'; users[1].mode = 'fitness'; users[2].mode = 'health';
-    var posts = [
-      { id: 'post_1', authorId: 'u_demo_fit', title: '第 4 周减脂执行记录',
-        content: '晨起空腹称重、晚餐碳水减半、每周三次力量训练。第 4 周体脂从 29.5 降到 27.4，继续坚持。',
-        plan: '减脂周期方案：力量 3 次/周 + 快走 2 次/周；饮食每餐一拳主食、一掌蛋白、两拳蔬菜。',
-        createdAt: dateStr(2), likes: ['u_demo_muscle'], comments: [{ userId: 'u_demo_muscle', text: '节奏很稳，学习了。', date: dateStr(1) }],
-        shares: 1, checkins: [{ userId: 'u_demo_fit', date: dateStr(0) }] },
-      { id: 'post_2', authorId: 'u_demo_health', title: '血压与血糖的每日记录',
-        content: '固定早晨测量血压与空腹血糖，记录四周后给医生看趋势，比单次数值更有价值。',
-        plan: '中老年健康管理：每日血压心率、每周一次平衡与小腿围自测。',
-        createdAt: dateStr(4), likes: ['u_demo_fit', 'u_demo_muscle'], comments: [], shares: 0,
-        checkins: [{ userId: 'u_demo_health', date: dateStr(1) }, { userId: 'u_demo_health', date: dateStr(0) }] }
-    ];
-    return { version: 1, users: users, products: seedProducts(), posts: posts, session: null };
-  }
-
-  function load() {
-    /* 同一页面内以内存对象为准，确保所有模块拿到同一引用；刷新后再从 localStorage 读取 */
-    if (memoryFallback) return memoryFallback;
-    try {
-      var raw = localStorage.getItem(KEY);
-      if (raw) {
-        var parsed = JSON.parse(raw);
-        if (parsed && parsed.users && parsed.products) {
-          memoryFallback = parsed;
-          return memoryFallback;
-        }
-      }
-    } catch (e) { /* file:// 或隐私模式下退回内存 */ }
-    memoryFallback = seed();
-    return memoryFallback;
-  }
-  function save(state) {
-    memoryFallback = state;
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* 容量或权限受限，内存仍可用 */ }
-  }
-  function reset() {
-    var s = seed();
-    save(s);
-    return s;
-  }
-
-  window.DATA = {
-    KEY: KEY, ADMIN_PHONE: ADMIN_PHONE, ADMIN_CODE: ADMIN_CODE, LOGIN_CODE: LOGIN_CODE,
-    load: load, save: save, reset: reset, uid: uid, dateStr: dateStr,
-    deepCopy: deepCopy, seed: seed,
-    getUser: function (id) { return load().users.filter(function (u) { return u.id === id; })[0] || null; },
-    currentUser: function () {
-      var s = load();
-      if (!s.session || s.session.type !== 'user') return null;
-      return s.users.filter(function (u) { return u.id === s.session.userId; })[0] || null;
-    },
-    latest: function (u, field) {
-      if (!u || !u.records || !u.records.length) return null;
-      var rs = u.records.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-      for (var i = 0; i < rs.length; i++) if (typeof rs[i][field] === 'number') return rs[i][field];
-      return null;
-    }
-  };
-})();
-
-</script>
-<script>
-/* 农小禾 Agent · 规则引擎：评分、方案、推荐、AI 问答 */
-(function () {
-  'use strict';
-
-  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-  function num(v, fallback) { var n = parseFloat(v); return isNaN(n) ? (fallback || 0) : n; }
-  var LEVELS = ['优秀', '良好', '一般', '偏弱', '较弱'];
-
-  /* 一句话结论：把各测试映射为用户要求的五档统一话术 */
-  function verdict(level, label, detail) {
-    var map = {
-      '优秀': '优秀：明显高于同龄人平均水平。',
-      '良好': '良好：高于同龄人平均水平。',
-      '一般': '一般：处于同龄人常见水平。',
-      '偏弱': '偏弱：低于同龄人平均水平，建议针对性改善。',
-      '较弱': '较弱：明显低于同龄人平均水平，建议加强训练或咨询医生。'
-    };
-    return { level: level, text: (map[level] || map['一般']) + (detail ? '（' + label + '：' + detail + '）' : '') };
-  }
-
-  /* 1. 闭眼单脚站立 */
-  function scoreBalance(sec, age) {
-    var s = num(sec), a = num(age, 65), lv;
-    if (a < 70) lv = s < 10 ? '较弱' : (s < 20 ? '一般' : '良好');
-    else if (a < 80) lv = s < 5 ? '较弱' : (s < 10 ? '一般' : '良好');
-    else lv = s <= 5 ? '较弱' : (s <= 8 ? '一般' : '良好');
-    var r = verdict(lv, '闭眼单脚站立', s + ' 秒');
-    if ((a >= 70 && s < 5) || s < 10) r.text += ' 跌倒风险偏高，建议加强平衡训练并注意居家防滑。';
-    return r;
-  }
-
-  /* 2. 小腿围 */
-  function scoreCalf(cm, gender) {
-    var v = num(cm), lv = (gender === 'male' ? v >= 34 : v >= 33) ? '良好' : '偏弱';
-    var r = verdict(lv, '小腿围', v + ' cm');
-    r.text += lv === '偏弱' ? ' 该数值提示肌肉量可能不足，可用指环测试辅助判断。' : ' 肌肉量风险较低。';
-    return r;
-  }
-
-  /* 3. 屏气时间 */
-  function scoreBreath(sec, age, medical) {
-    var s = num(sec), a = num(age, 60), lv;
-    if (s < 10) return { level: '较弱', text: '屏气时间 ' + s + ' 秒：低于 10 秒，不建议反复测试，建议咨询医生。' };
-    if (a < 60) lv = s < 20 ? '偏弱' : (s <= 30 ? '一般' : '良好');
-    else lv = s < 20 ? '偏弱' : (s <= 25 ? '一般' : (s <= 45 ? '良好' : '优秀'));
-    var r = verdict(lv, '屏气时间', s + ' 秒');
-    if (medical && /高血压|心脏病|脑血管/.test(medical)) r.text += ' 有相关病史，屏气测试要谨慎，出现头晕、胸闷立即停止。';
-    return r;
-  }
-
-  /* 4. 坐位体前屈：Distance 为指尖相对脚尖的位置（cm，负数=够不到） */
-  function scoreReach(dist, gender) {
-    var v = num(dist), lv;
-    if (v >= 0) lv = '良好';
-    else if (v >= -3 && gender === 'female') lv = '偏弱';
-    else lv = '偏弱';
-    var r = verdict(lv, '坐位体前屈', v >= 0 ? '超过脚尖 ' + v + ' cm' : '距脚尖 ' + Math.abs(v) + ' cm');
-    if (v < -10) r.text += ' 柔韧性较差，建议每天做温和拉伸，避免猛压、猛拉。';
-    return r;
-  }
-
-  /* 5. 五次起坐 */
-  function scoreSitStand(sec) {
-    var s = num(sec), r = verdict(s < 12 ? '良好' : '偏弱', '5 次起坐', s + ' 秒');
-    if (s >= 12) r.text += ' 日常起身、上楼可能容易累。';
-    return r;
-  }
-
-  /* 6. 认知自测 */
-  function scoreCognition(score) {
-    var s = num(score, 3), lv = s >= 3 ? '优秀' : (s === 2 ? '良好' : (s === 1 ? '一般' : '偏弱'));
-    var r = verdict(lv, '认知自测', s + '/3 题正确');
-    r.text += ' 仅为初步筛查，不能作为诊断依据，持续异常建议就医评估。';
-    return r;
-  }
-
-  function scoreAll(test, profile) {
-    if (!test) return [];
-    var p = profile || {};
-    var results = [];
-    if (test.balance !== '' && test.balance != null) results.push({ key: '平衡能力', value: scoreBalance(test.balance, p.age) });
-    if (test.calf !== '' && test.calf != null) results.push({ key: '小腿围', value: scoreCalf(test.calf, p.gender) });
-    if (test.cognition !== '' && test.cognition != null) results.push({ key: '认知功能', value: scoreCognition(test.cognition) });
-    if (test.breathHold !== '' && test.breathHold != null) results.push({ key: '屏气时间', value: scoreBreath(test.breathHold, p.age, p.medical) });
-    if (test.reach !== '' && test.reach != null) results.push({ key: '柔韧性', value: scoreReach(test.reach, p.gender) });
-    if (test.sitToStand !== '' && test.sitToStand != null) results.push({ key: '下肢力量', value: scoreSitStand(test.sitToStand) });
-    return results;
-  }
-
-  /* 综合进度分：体重/体脂/围度趋势 + 训练频率 */
-  function progressScore(user) {
-    var rs = (user.records || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-    if (!rs.length) return { score: 0, parts: [] };
-    var latest = rs[0], first = rs[rs.length - 1], parts = [], total = 0;
-    function part(name, value) { parts.push({ name: name, value: Math.round(value) }); total += value; }
-    function trend(key, goodDirection, weight, cap) {
-      if (typeof latest[key] !== 'number' || typeof first[key] !== 'number') { part(name, 0); return; }
-      var delta = (latest[key] - first[key]) * goodDirection;
-      part(key, clamp(delta / cap, 0, 1) * weight);
-    }
-    var goal = user.profile && user.profile.goal;
-    var dirW = goal === '增肌' ? 1 : -1;
-    trend('weight', dirW, 25, 4);
-    trend('bodyFat', -1, 25, 4);
-    trend('waist', -1, 20, 5);
-    var training = latest.trainingLoad || 0;
-    part('训练频率', clamp(training / 4, 0, 1) * 30);
-    return { score: Math.round(clamp(total, 0, 100)), parts: parts };
-  }
-
-  function bmi(weight, heightCm) {
-    var h = num(heightCm) / 100;
-    if (!h || !weight) return null;
-    return Math.round(num(weight) / (h * h) * 10) / 10;
-  }
-  function bmr(user) {
-    var p = user.profile || {}, w = DATA.latest(user, 'weight') || p.weight;
-    var base = 10 * num(w) + 6.25 * num(p.height) - 5 * num(p.age) + (p.gender === 'male' ? 5 : -161);
-    return Math.round(base);
-  }
-
-  /* AI 产品推荐：按目标 + 指标打分 */
-  function recommend(user, products) {
-    var p = user.profile || {}, goal = p.goal || '维持';
-    var bodyFat = DATA.latest(user, 'bodyFat'), visceral = DATA.latest(user, 'visceralFat');
-    var glucose = DATA.latest(user, 'glucose') || 5, sys = DATA.latest(user, 'bpSys') || 120;
-    var age = num(p.age, 30);
-    var want = {};
-    if (goal === '减脂') { want['减脂'] = 3; want['控糖'] = 2; want['高蛋白'] = 2; want['肠道'] = 1; }
-    if (goal === '增肌') { want['增肌'] = 4; want['高蛋白'] = 3; want['恢复'] = 2; }
-    if (goal === '塑形') { want['高蛋白'] = 2; want['减脂'] = 2; want['恢复'] = 1; }
-    if (bodyFat && bodyFat > 28) { want['减脂'] = (want['减脂'] || 0) + 2; want['控糖'] = (want['控糖'] || 0) + 1; }
-    if (visceral && visceral > 9) want['心血管'] = (want['心血管'] || 0) + 2;
-    if (glucose >= 6 || p.medical && /血糖/.test(p.medical)) want['控糖'] = (want['控糖'] || 0) + 3;
-    if (sys >= 135 || p.medical && /高血压/.test(p.medical)) { want['控盐'] = (want['控盐'] || 0) + 3; want['心血管'] = (want['心血管'] || 0) + 2; }
-    if (age >= 60) { want['中老年'] = (want['中老年'] || 0) + 3; want['骨量'] = (want['骨量'] || 0) + 2; want['肌肉'] = (want['肌肉'] || 0) + 2; }
-    return (products || []).map(function (prod) {
-      var score = 0, hits = [];
-      (prod.tags || []).forEach(function (t) { if (want[t]) { score += want[t]; hits.push(t); } });
-      return { product: prod, score: score, reasons: hits };
-    }).filter(function (x) { return x.score > 0; })
-      .sort(function (a, b) { return b.score - a.score; }).slice(0, 4);
-  }
-
-  /* 训练 + 饮食方案（规则模板，非医疗建议） */
-  function makePlan(user, products) {
-    var p = user.profile || {}, goal = p.goal || '维持';
-    var age = num(p.age, 30), mode = user.mode || 'fitness';
-    var isOld = age >= 60;
-    var recs = recommend(user, products);
-    var train, diet;
-    if (isOld || mode === 'health') {
-      train = [
-        '每周 3 次快走或太极，每次 20–30 分钟，以不气喘为宜。',
-        '每周 2 次椅子坐立训练：每组 5 次，做 2 组；起身困难时减少幅度。',
-        '每周 2 次闭眼单脚站立练习：扶椅背保护，每次 10 秒，做 2 组。',
-        '训练中如出现头晕、胸闷、腿软立即停止并休息。'
-      ];
-      diet = [
-        '每餐一拳主食、一掌优质蛋白、两拳蔬菜，细嚼慢咽。',
-        '控制盐与腌制食品，每日食盐建议不超过 5g。',
-        '固定晨起测血压与心率，每周记录一次小腿围。',
-        '有慢性病或用药者，饮食调整前先与医生确认。'
-      ];
-    } else if (goal === '增肌') {
-      train = [
-        '每周 4 次力量训练：胸/背/腿/肩各 1 天，每组 8–12 次，做 3–4 组。',
-        '每周 2 次 20 分钟中低强度有氧，安排在力量训练之后。',
-        '同一动作每周尝试增加 1–2 次或 1kg 负荷，记录训练重量。',
-        '每晚保证 7–8 小时睡眠，疲劳度 ≥7 时主动减量。'
-      ];
-      diet = [
-        '每日蛋白质约 1.6g/kg 体重，分 3–4 餐摄入。',
-        '训练后 2 小时内补充蛋白质与适量碳水。',
-        '每日蔬菜 500g 左右，饮水 2000ml 以上。',
-        '体脂偏高时先做 4 周小幅热量缺口再进入增肌期。'
-      ];
-    } else if (goal === '减脂') {
-      train = [
-        '每周 3 次力量训练（全身循环），每次 40 分钟。',
-        '每周 2 次快走或椭圆机，每次 30 分钟，心率维持中等强度。',
-        '每周记录腰围 1 次，晨起空腹称重，重点看趋势。',
-        '睡眠不足 6 小时当天降低训练强度。'
-      ];
-      diet = [
-        '每餐按“半盘蔬菜、四分之一蛋白、四分之一主食”搭配。',
-        '减少含糖饮料与油炸食品，优先选择全谷物。',
-        '每日蛋白质约 1.2–1.5g/kg 体重，避免只吃水果减肥。',
-        '每周允许 1 次放松餐，但保持总热量不超标。'
-      ];
-    } else {
-      train = [
-        '每周 3 次中等强度有氧，每次 30 分钟。',
-        '每周 2 次全身力量训练，维持肌肉量。',
-        '每天步行 6000–8000 步，久坐每小时起身活动。'
-      ];
-      diet = [
-        '均衡饮食，主食粗细搭配，保证优质蛋白。',
-        '规律三餐，避免夜宵和过量精制糖。',
-        '每周固定一天记录体重与围度，观察趋势。'
-      ];
-    }
-    var cycle = { title: '未来 4 周' + (goal === '维持' ? '维持' : goal) + '方案',
-      goal: goal, owner: p.name || user.name, train: train, diet: diet,
-      products: recs.map(function (r) { return { id: r.product.id, name: r.product.name, reason: r.reasons.join(' / ') }; }),
-      note: '本方案由规则模板生成，仅供健康记录参考，不构成医疗或营养诊断。' };
-    return cycle;
-  }
-
-  /* 关键词 AI 问答：指标含义 + 产品营养与身体状况关联 */
-  var KB = [
-    { k: ['体脂', '脂肪'], t: '体脂率反映身体脂肪占比，比体重更能说明“减的是不是脂肪”。女性常见参考约 20%–30%，男性约 10%–20%，但应以个人趋势和医生意见为准。建议固定设备、固定时间测量，看长期曲线。' },
-    { k: ['肌肉', '骨骼肌'], t: '肌肉量或骨骼肌量用于判断力量训练是否真的带来增肌。体重不变但肌肉上升、体脂下降，是理想的身体重组。中老年小腿围是肌少症的简易预警指标。' },
-    { k: ['基础代谢', 'bmr'], t: '基础代谢率是静息状态下维持生命所需的最低热量。肌肉量、年龄、性别都会影响它。它可帮助你制定热量计划，但实际消耗还要加上活动量。' },
-    { k: ['内脏脂肪'], t: '内脏脂肪等级反映腹腔深层脂肪，数值偏高与代谢风险相关。腰围和腰臀比是简单补充指标。改善方式以规律运动、控制精制糖和总热量为主。' },
-    { k: ['体水分', '水分'], t: '体水分率短期内会随饮水、盐分、出汗和碳水摄入波动，因此单日体重变化常由水分造成。看周均值和趋势更可靠。' },
-    { k: ['骨量', '骨质'], t: '骨量变化较慢，属于长期健康参考。负重力量训练、足量钙和维生素D、避免吸烟有助于维持骨量；已确诊骨质疏松需遵医嘱。' },
-    { k: ['腰围', '腰臀比'], t: '腰围反映腹部脂肪，腰臀比用于评估中心性肥胖风险。测量时建议肚脐上方约 1–2cm、自然呼气末读数，臀围取臀部最凸处，并始终使用同一位置。' },
-    { k: ['静息心率', '心率'], t: '静息心率反映心肺适应与恢复状态，长期规律有氧后常会缓慢下降。若静息心率明显升高并伴胸闷、头晕，应停止训练并就医。' },
-    { k: ['心率变异', 'hrv'], t: '心率变异性（HRV）用于观察疲劳与恢复。持续低于个人基线通常提示恢复不足，可降低训练强度、增加睡眠。不同设备数值不可直接横比。' },
-    { k: ['睡眠'], t: '睡眠影响增肌、减脂与恢复。建议成年人每晚 7–9 小时，关注入睡时长与夜间醒来次数。长期入睡困难或打鼾憋醒建议就医评估。' },
-    { k: ['血压'], t: '血压需要看趋势而不是单次数值。测量前静坐 5 分钟、避免咖啡因和运动后立即测量。已有高血压者请按医嘱服药，不要用 Apps 结果替代诊疗。' },
-    { k: ['血糖'], t: '空腹血糖是核心代谢指标。单次偏高可能受前一晚饮食、睡眠影响，建议固定时间记录并带给医生判断。' },
-    { k: ['疲劳'], t: '主观疲劳度 1–10 分是调整训练的好工具：持续 7 分以上建议减量或休息，配合 HRV 与睡眠一起判断。' },
-    { k: ['平衡', '跌倒', '单脚'], t: '闭眼单脚站立评估平衡与跌倒风险。70 岁以上低于 5 秒提示风险偏高，建议加强平衡练习并改善居家防滑。' },
-    { k: ['小腿围', '肌少'], t: '男性小腿围小于 34cm、女性小于 33cm 提示肌肉量可能不足。指环测试可辅助：手能轻松围住并有空隙时风险更高。' },
-    { k: ['屏气', '肺活量'], t: '屏气时间粗略反映呼吸系统耐力。低于 10 秒不建议反复测试；有高血压、心脏病、脑血管病史者测试要谨慎，出现头晕胸闷立即停止。' },
-    { k: ['柔韧', '体前屈'], t: '坐位体前屈反映关节僵硬与跌倒风险。只能碰到膝盖附近时说明柔韧性较差，建议每天温和拉伸，避免猛压。' },
-    { k: ['起坐', '下肢'], t: '5 次起坐用时 12 秒及以上提示下肢力量可能下降，日常起身、上楼容易累。测试中头晕、胸闷、腿软应立即停止。' },
-    { k: ['症状', '水肿', '气短', '憋醒'], t: '下肢水肿、运动后气短、餐后困倦、夜间憋醒可能是心衰或代谢异常的预警信号。出现这些情况请尽快就医，不要仅依赖记录。' },
-    { k: ['用药', '服药', '漏服'], t: '用药依从性记录包括是否按时服药、是否漏服、是否出现不良反应。任何药物调整都应由医生决定，不要自行停药。' },
-    { k: ['积分'], t: '在用户广场监督发布者打卡，每次可获得 1 积分；积分在个人中心汇总，可用于兑换农小禾慧选中的产品。' },
-    { k: ['兑换'], t: '积分兑换在个人中心购物车完成。兑换前请确认积分余额，兑换后余额会相应扣减。' },
-    { k: ['燕麦'], t: '燕麦富含可溶性膳食纤维（β-葡聚糖），有助于增加饱腹感和平稳餐后血糖；适合替代精制主食，仍需控制总量。' },
-    { k: ['鸡胸'], t: '鸡胸肉提供高蛋白低脂肪，适合增肌与减脂期的蛋白质来源。蛋白质摄入应分摊到各餐，并搭配蔬菜与主食。' },
-    { k: ['酸奶'], t: '无糖希腊酸奶蛋白质较高、糖较低，可作为加餐；肠道不适者应从少量开始尝试。' },
-    { k: ['鱼油'], t: '鱼油中的 EPA/DHA 与心血管和认知健康相关。正在服用抗凝药、手术前或过敏者应先咨询医生。' },
-    { k: ['蛋白粉', '乳清'], t: '乳清蛋白粉用于补足日常蛋白质缺口，不能替代均衡饮食。肾功能异常者使用前请咨询医生。' },
-    { k: ['南瓜籽', '镁'], t: '南瓜籽富含镁与锌，镁参与神经肌肉放松。坚果种子热量较高，建议每日一小把。' },
-    { k: ['钙', '奶粉'], t: '钙与维生素D对骨量维持重要；高钙低脂奶粉可作为补充，但总量需结合日常饮食，肾结石病史者请咨询医生。' },
-    { k: ['纤维', '车前子'], t: '洋车前子壳粉是可溶性膳食纤维，需配合足量饮水，否则可能引起腹胀；服药人群建议与药物间隔服用。' },
-    { k: ['蓝莓', '花青素'], t: '蓝莓花青素属于抗氧化成分，可作为果蔬摄入的补充，但不能替代均衡饮食或治疗。' },
-    { k: ['坚果'], t: '无盐混合坚果提供不饱和脂肪酸，适合控盐人群；但能量密度高，每日一小把即可。' }
-  ];
-
-  function ask(question, user, products) {
-    var q = (question || '').toLowerCase();
-    var hit = null;
-    for (var i = 0; i < KB.length; i++) {
-      var keys = KB[i].k;
-      for (var j = 0; j < keys.length; j++) {
-        if (q.indexOf(keys[j].toLowerCase()) >= 0) { hit = KB[i]; break; }
-      }
-      if (hit) break;
-    }
-    if (!hit) {
-      var rec = recommend(user, products || []);
-      var names = rec.map(function (r) { return r.product.name; }).join('、');
-      return '我可以回答各项健康指标的含义，以及产品营养成分与身体状况的关联。你可以试着问“体脂率怎么看”“小腿围低于多少要警惕”“鱼油和什么有关”。' +
-        (names ? ' 根据你的档案，当前较匹配的产品是：' + names + '。' : '') + ' 所有回答仅供记录参考，不构成医疗诊断。';
-    }
-    return hit.t + ' 以上为一般性健康知识，不替代医生诊断；如有不适请及时就医。';
-  }
-
-  window.ENGINE = {
-    LEVELS: LEVELS, clamp: clamp, num: num, verdict: verdict,
-    scoreBalance: scoreBalance, scoreCalf: scoreCalf, scoreBreath: scoreBreath,
-    scoreReach: scoreReach, scoreSitStand: scoreSitStand, scoreCognition: scoreCognition,
-    scoreAll: scoreAll, progressScore: progressScore, bmi: bmi, bmr: bmr,
-    recommend: recommend, makePlan: makePlan, ask: ask
-  };
-})();
-
-</script>
-<script>
-/* 农小禾 Agent · 视图层 */
-(function () {
-  'use strict';
-  var V = {};
-
-  function esc(s) {
-    if (s == null) return '';
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-  function fmtDate(d) { return d ? String(d).slice(5) : '—'; }
-  function fld(name, label, opts) {
-    opts = opts || {};
-    var type = opts.type || 'number';
-    var extra = opts.extra || '';
-    var val = opts.value == null ? '' : opts.value;
-    if (type === 'textarea') return '<label class="fl"><span>' + esc(label) + '</span><textarea name="' + name + '" rows="' + (opts.rows || 3) + '" placeholder="' + esc(opts.ph || '') + '">' + esc(val) + '</textarea></label>';
-    if (type === 'select') {
-      var os = (opts.options || []).map(function (o) {
-        var value = Array.isArray(o) ? o[0] : o, text = Array.isArray(o) ? o[1] : o;
-        return '<option value="' + esc(value) + '"' + (String(value) === String(val) ? ' selected' : '') + '>' + esc(text) + '</option>';
-      }).join('');
-      return '<label class="fl"><span>' + esc(label) + '</span><select name="' + name + '"' + extra + '>' + os + '</select></label>';
-    }
-    return '<label class="fl"><span>' + esc(label) + '</span><input type="' + type + '" name="' + name + '" value="' + esc(val) + '" placeholder="' + esc(opts.ph || '') + '"' + (opts.step ? ' step="' + opts.step + '"' : '') + (extra || '') + '></label>';
-  }
-  function note(t) { return '<p class="note">' + esc(t) + '</p>'; }
-  function card(title, body, foot) {
-    return '<section class="card"><div class="card-h"><h3>' + title + '</h3></div><div class="card-b">' + body + '</div>' + (foot ? '<div class="card-f">' + foot + '</div>' : '') + '</section>';
-  }
-  function nav(theme, items, active) {
-    return '<nav class="tabbar">' + items.map(function (it) {
-      return '<a href="#/' + it.href + '" class="tab' + (it.href === active ? ' on' : '') + '"><span class="ti">' + it.icon + '</span><span>' + esc(it.label) + '</span></a>';
-    }).join('') + '</nav>';
-  }
-  function shell(theme, title, subtitle, items, active, content, topExtra) {
-    return '<div class="app-shell ' + theme + '"><header class="topbar"><div class="brand"><span class="logo">禾</span><div><strong>农小禾</strong><small>' + esc(subtitle) + '</small></div></div>' +
-      '<div class="top-right">' + (topExtra || '') + '<span class="mode-pill">' + esc(title) + '</span><a class="ghost-btn" href="#/login">退出</a></div></header>' +
-      '<main class="main">' + content + '</main>' + nav(theme, items, active) + '</div>';
-  }
-  function icon(name) {
-    var map = {
-      profile: '◫', plaza: '◎', shop: '◇', me: '☰', dash: '⌂', users: '☷', cart: '▤',
-      heart: '♡', comment: '▢', share: '↗', check: '✓', bell: '◔'
-    };
-    return map[name] || '•';
-  }
-  function spark(user, key, label, unit, color) {
-    var rows = (user.records || []).slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).slice(-8);
-    var vals = rows.map(function (r) { return r[key]; }).filter(function (v) { return typeof v === 'number'; });
-    if (vals.length < 2) return '<div class="chart-empty">' + esc(label) + '：至少记录两次后显示趋势</div>';
-    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals), span = max - min || 1;
-    var pts = vals.map(function (v, i) {
-      return (8 + i * (284 / (vals.length - 1))).toFixed(1) + ',' + (72 - ((v - min) / span) * 56).toFixed(1);
-    }).join(' ');
-    var area = '8,84 ' + pts + ' 292,84';
-    return '<div class="chart"><div class="chart-top"><span>' + esc(label) + '</span><strong>' + vals[vals.length - 1] + esc(unit || '') + '</strong></div>' +
-      '<svg viewBox="0 0 300 88" preserveAspectRatio="none"><polygon points="' + area + '" fill="' + color + '" opacity="0.12"/><polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>' +
-      '<div class="chart-axis"><span>' + fmtDate(rows[0].date) + '</span><span>' + fmtDate(rows[rows.length - 1].date) + '</span></div></div>';
-  }
-
-  /* ---------- 登录 / 模式选择 ---------- */
-  V.login = function () {
-    return '<div class="auth-wrap"><div class="auth-panel">' +
-      '<div class="auth-brand"><span class="logo big">禾</span><h1>农小禾健康 Agent</h1><p>记录身体数据 · 生成专属方案 · 连接健康好物</p></div>' +
-      '<form class="auth-form" data-form="login">' +
-      fld('phone', '手机号', { type: 'tel', ph: '请输入手机号', extra: ' id="loginPhone" autocomplete="off"' }) +
-      fld('password', '密码', { type: 'password', ph: '演示密码 123456', extra: ' autocomplete="off"' }) +
-      '<button class="btn primary wide" type="submit">普通用户登录</button>' +
-      '<button class="btn admin-entry hidden" type="button" data-act="admin-entry" id="adminEntry">管理员登录（内部入口）</button>' +
-      '</form>' +
-      '<div class="auth-foot"><span>普通登录也需短信验证码（演示码 888888）</span><span class="dot">·</span><span>演示账号：13900000001 / 123456</span></div>' +
-      '</div><div class="auth-aside"><div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div>' +
-      '<div class="aside-copy"><span class="tag">LOCAL AGENT</span><h2>你的身体<br>值得一套专属方案</h2><p>三大模式 · 十一个功能页面 · 全部数据本地保存</p></div></div></div>';
-  };
-  V.mode = function (u) {
-    return '<div class="mode-wrap"><div class="mode-head"><span class="tag">STEP 01</span><h1>选择你的模式</h1><p>' + esc(u.name) + '，接下来想用哪种方式管理健康？模式可随时切换。</p></div>' +
-      '<div class="mode-grid">' +
-      '<a class="mode-card fitness" href="#/fitness/profile"><span class="mode-kicker">FITNESS</span><h2>健身模式</h2><p>黑绿能量场，追踪体脂、肌肉、围度与训练表现。</p><ul><li>健康档案 · 趋势与评分</li><li>用户广场 · 打卡积分</li><li>农小禾慧选 · AI推荐</li><li>个人中心 · 方案与购物车</li></ul><span class="mode-cta">进入健身模式 →</span></a>' +
-      '<a class="mode-card health" href="#/health/daily"><span class="mode-kicker">WELLNESS</span><h2>健康模式</h2><p>浅绿清新界面，面向中老年的日常指标与专业自测。</p><ul><li>健康管理 · 日常与周测</li><li>用户广场 · 打卡积分</li><li>农小禾慧选 · AI推荐</li><li>个人中心 · 方案与购物车</li></ul><span class="mode-cta">进入健康模式 →</span></a>' +
-      '</div></div>';
-  };
-
-  /* ---------- 健身：健康档案 ---------- */
-  V.fitnessProfile = function (u, state) {
-    var p = u.profile || {}, latest = u.records && u.records[0] || {};
-    var bmiVal = ENGINE.bmi(latest.weight || p.weight, p.height);
-    var ps = ENGINE.progressScore(u);
-    var goalWeight = num(p.targetWeight), curWeight = num(DATA.latest(u, 'weight') || p.weight);
-    var goalPct = goalWeight && curWeight ? Math.round(ENGINE.clamp((curWeight - goalWeight) / (curWeight || 1) * 100, 0, 100)) : 0;
-    var bf = DATA.latest(u, 'bodyFat'), tbf = num(p.targetBodyFat);
-    var bfPct = bf && tbf ? Math.round(ENGINE.clamp((bf - tbf) / bf * 100, 0, 100)) : 0;
-    var html = '<div class="page-head"><div><span class="kicker">HEALTH PROFILE</span><h1>健康档案</h1><p>一次填写基础信息，之后只记录变化数据。</p></div><div class="score-badge"><small>综合进度分</small><strong>' + ps.score + '</strong><span>/100</span></div></div>';
-
-    html += '<div class="quick-row"><div><span>体重</span><strong>' + (curWeight || '—') + ' kg</strong></div><div><span>BMI</span><strong>' + (bmiVal || '—') + '</strong></div><div><span>体脂率</span><strong>' + (bf || '—') + '%</strong></div><div><span>记录天数</span><strong>' + (u.records || []).length + '</strong></div></div>';
-
-    html += card('1 · 基础档案', '<form data-form="basic" class="form-grid">' +
-      fld('gender', '性别', { type: 'select', options: [['female', '女'], ['male', '男']], value: p.gender }) +
-      fld('age', '年龄', { value: p.age }) + fld('height', '身高 cm', { value: p.height }) +
-      fld('weight', '体重 kg', { value: curWeight, step: '0.1' }) +
-      fld('goal', '目标类型', { type: 'select', options: ['减脂', '增肌', '塑形', '维持'], value: p.goal }) +
-      fld('targetWeight', '目标体重 kg', { value: p.targetWeight, step: '0.1' }) +
-      fld('targetBodyFat', '目标体脂 %', { value: p.targetBodyFat, step: '0.1' }) +
-      '<div class="full">' + note('建议固定时间记录体重：晨起空腹、排便后，数据趋势更稳定。') + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">保存基础档案</button></div></form>');
-
-    html += card('2 · 体成分指标', '<form data-form="record" data-group="body" class="form-grid">' +
-      fld('date', '测量日期', { type: 'date', value: DATA.dateStr(0) }) +
-      fld('bodyFat', '体脂率 %', { value: latest.bodyFat, step: '0.1' }) +
-      fld('muscle', '肌肉量 / 骨骼肌量 kg', { value: latest.muscle, step: '0.1' }) +
-      fld('bmr', '基础代谢率 kcal', { value: latest.bmr }) +
-      fld('visceralFat', '内脏脂肪等级', { value: latest.visceralFat, step: '0.1' }) +
-      fld('water', '体水分率 %', { value: latest.water, step: '0.1' }) +
-      fld('bone', '骨量 kg', { value: latest.bone, step: '0.1' }) +
-      '<div class="full">' + note('体脂秤数据请固定设备、固定时间测量；重点看长期趋势，不要过度解读单日波动。') + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">保存体成分记录</button></div></form>');
-
-    html += card('3 · 围度指标', '<form data-form="record" data-group="girth" class="form-grid">' +
-      fld('date', '测量日期', { type: 'date', value: DATA.dateStr(0) }) +
-      fld('waist', '腰围 cm', { value: latest.waist, step: '0.1' }) +
-      fld('hip', '臀围 cm', { value: latest.hip, step: '0.1' }) +
-      fld('chest', '胸围 cm', { value: latest.chest, step: '0.1' }) +
-      fld('upperArm', '上臂围 cm', { value: latest.upperArm, step: '0.1' }) +
-      fld('thigh', '大腿围 cm', { value: latest.thigh, step: '0.1' }) +
-      fld('whr', '腰臀比', { value: latest.whr, step: '0.01' }) +
-      '<div class="full">' + note('腰围建议肚脐上方约 1–2cm、自然呼气末测量；臀围取臀部最凸处。') + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">保存围度记录</button></div></form>');
-
-    html += card('4 · 体能与恢复指标', '<form data-form="record" data-group="recovery" class="form-grid">' +
-      fld('date', '记录日期', { type: 'date', value: DATA.dateStr(0) }) +
-      fld('restingHR', '静息心率 bpm', { value: latest.restingHR }) +
-      fld('hrv', '心率变异性 ms', { value: latest.hrv }) +
-      fld('sleepHours', '睡眠质量 小时', { value: latest.sleepHours, step: '0.1' }) +
-      fld('fatigue', '主观疲劳度 1–10', { value: latest.fatigue }) +
-      fld('trainingLoad', '本周训练次数', { value: latest.trainingLoad }) +
-      fld('liftNote', '训练重量 / 次数记录', { type: 'text', value: latest.liftNote, ph: '如：深蹲 60kg × 8' }) +
-      '<div class="full">' + note('体态照片建议每月一次，上传正面、侧面、背面，固定光线、距离和服装，三个月后对比更明显。') + '</div>' +
-      '<div class="full photo-row"><label class="fl"><span>照片部位</span><select name="part"><option>正面</option><option>侧面</option><option>背面</option></select></label>' +
-      '<label class="fl"><span>选择照片</span><input type="file" name="photo" accept="image/*"></label>' +
-      '<button class="btn" type="button" data-act="upload-photo">上传照片</button></div></form>');
-
-    html += card('5 · 可选健康指标（进阶）', '<form data-form="record" data-group="optional" class="form-grid">' +
-      fld('date', '记录日期', { type: 'date', value: DATA.dateStr(0) }) +
-      fld('bpSys', '收缩压 mmHg', { value: latest.bpSys }) + fld('bpDia', '舒张压 mmHg', { value: latest.bpDia }) +
-      fld('glucose', '空腹血糖 mmol/L', { value: latest.glucose, step: '0.1' }) +
-      fld('spo2', '血氧 %', { value: latest.spo2 }) + fld('vo2max', '最大摄氧量', { value: latest.vo2max, step: '0.1' }) +
-      fld('rr', '静息呼吸频率', { value: latest.rr }) +
-      '<div class="full">' + fld('medical', '既往病史 / 运动禁忌', { type: 'textarea', value: p.medical, ph: '如：高血压，不适宜高强度间歇' }) + '</div>' +
-      '<div class="full">' + note('此类数据仅做记录、趋势展示与一般性提示，不给出诊断结论。异常请就医。') + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">保存健康指标</button></div></form>');
-
-    html += card('6 · 后续看变化',
-      '<div class="chart-grid">' + spark(u, 'weight', '体重趋势', ' kg', '#39ff9a') + spark(u, 'bodyFat', '体脂率趋势', ' %', '#7be0ff') +
-      spark(u, 'muscle', '肌肉量趋势', ' kg', '#b6ff5c') + spark(u, 'waist', '腰围趋势', ' cm', '#ffd166') + '</div>' +
-      '<div class="compare-grid">' + compare(u, 'weight', '体重', ' kg') + compare(u, 'bodyFat', '体脂率', ' %') + compare(u, 'muscle', '肌肉量', ' kg') + compare(u, 'waist', '腰围', ' cm') + '</div>' +
-      '<div class="progress-block"><span>目标体重进度：距目标还差 ' + Math.max(0, Math.round((curWeight - goalWeight) * 10) / 10) + ' kg</span><div class="bar"><i style="width:' + goalPct + '%"></i></div>' +
-      '<span>目标体脂进度：距目标还差 ' + Math.max(0, Math.round(((bf || 0) - tbf) * 10) / 10) + ' %</span><div class="bar alt"><i style="width:' + bfPct + '%"></i></div></div>' +
-      '<div class="score-parts">' + ps.parts.map(function (x) { return '<span>' + esc(x.name) + ' <b>' + x.value + '</b></span>'; }).join('') + '</div>' +
-      photoTimeline(u) +
-      '<div class="remind-row"><button class="btn ghost" data-act="remind" data-type="waist">每周提醒记录围度</button>' +
-      '<button class="btn ghost" data-act="remind" data-type="photo">每月提醒拍照 / 体测</button></div>');
-
-    var items = [
-      { href: 'fitness/profile', label: '健康档案', icon: icon('profile') },
-      { href: 'fitness/plaza', label: '用户广场', icon: icon('plaza') },
-      { href: 'fitness/shop', label: '农小禾慧选', icon: icon('shop') },
-      { href: 'fitness/me', label: '个人中心', icon: icon('me') }
-    ];
-    return shell('theme-fitness', '健身模式', 'FITNESS MODE', items, 'fitness/profile', html,
-      '<button class="icon-btn" data-act="switch-mode" title="切换模式">⇄</button>');
-  };
-  function num(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
-  function compare(u, key, label, unit) {
-    var rs = (u.records || []).slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
-    var vals = rs.filter(function (r) { return typeof r[key] === 'number'; });
-    if (vals.length < 2) return '<div class="cmp"><span>' + label + '</span><b>暂无对比</b></div>';
-    var a = vals[vals.length - 2][key], b = vals[vals.length - 1][key], d = Math.round((b - a) * 10) / 10;
-    return '<div class="cmp"><span>' + label + '</span><b>' + b + unit + '</b><em class="' + (d < 0 ? 'down' : 'up') + '">' + (d > 0 ? '+' : '') + d + unit + '</em></div>';
-  }
-  function photoTimeline(u) {
-    var ps = u.photos || [];
-    return '<div class="photo-block"><h4>体型进度 · 体态照片</h4>' + (ps.length ? '<div class="photo-timeline">' + ps.slice().reverse().map(function (p) {
-      return '<figure><img src="' + p.src + '" alt="' + esc(p.part) + '"><figcaption>' + fmtDate(p.date) + ' · ' + esc(p.part) + '</figcaption></figure>';
-    }).join('') + '</div>' : '<p class="empty">还没有体态照片。按上方提示每月上传一次，效果更直观。</p>') + '</div>';
-  }
-
-  /* ---------- 广场 ---------- */
-  function plaza(u, state, theme, active) {
-    var html = '<div class="page-head"><div><span class="kicker">COMMUNITY</span><h1>用户广场</h1><p>发布专属方案，互相监督打卡，每次监督 +1 积分。</p></div><div class="score-badge"><small>我的积分</small><strong>' + (u.points || 0) + '</strong><span>分</span></div></div>';
-    html += card('发布我的方案', '<form data-form="post" class="form-grid">' +
-      '<div class="full">' + fld('title', '标题', { type: 'text', ph: '例如：第 5 周执行记录' }) + '</div>' +
-      '<div class="full">' + fld('content', '内容', { type: 'textarea', ph: '写下今天的执行情况和身体反馈' }) + '</div>' +
-      '<div class="full">' + fld('plan', '专属方案（可选）', { type: 'textarea', ph: '不填则使用个人中心生成的方案' }) + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">发布到广场</button></div></form>');
-    var posts = (state.posts || []).slice().sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
-    html += '<div class="post-list">' + posts.map(function (post) {
-      var author = state.users.filter(function (x) { return x.id === post.authorId; })[0] || { name: '未知用户' };
-      var liked = (post.likes || []).indexOf(u.id) >= 0;
-      var checked = (post.checkins || []).some(function (c) { return c.userId === u.id && c.date === DATA.dateStr(0); });
-      var mine = post.authorId === u.id;
-      return '<article class="post"><div class="post-head"><div class="avatar">' + esc(author.name.slice(0, 1)) + '</div><div><strong>' + esc(author.name) + '</strong><small>' + fmtDate(post.createdAt) + ' · ' + esc(author.mode === 'health' ? '健康模式' : '健身模式') + '</small></div></div>' +
-        '<h3>' + esc(post.title) + '</h3><p>' + esc(post.content) + '</p>' +
-        (post.plan ? '<div class="post-plan">专属方案：' + esc(post.plan) + '</div>' : '') +
-        '<div class="post-actions">' +
-        '<button class="act' + (liked ? ' on' : '') + '" data-act="like" data-id="' + post.id + '">' + icon('heart') + ' ' + ((post.likes || []).length) + '</button>' +
-        '<button class="act" data-act="focus-comment" data-id="' + post.id + '">' + icon('comment') + ' ' + ((post.comments || []).length) + '</button>' +
-        '<button class="act" data-act="share" data-id="' + post.id + '">' + icon('share') + ' ' + (post.shares || 0) + '</button>' +
-        '<button class="act' + (checked ? ' on' : '') + '" data-act="checkin" data-id="' + post.id + '"' + (mine ? ' disabled title="不能监督自己"' : '') + '>' + icon('check') + ' ' + (checked ? '今日已监督' : '监督打卡 +1') + '</button>' +
-        '<button class="act" data-act="remind-author" data-id="' + post.id + '">' + icon('bell') + ' 提醒打卡</button></div>' +
-        '<div class="comments">' + (post.comments || []).map(function (c) {
-          var cu = state.users.filter(function (x) { return x.id === c.userId; })[0] || { name: '用户' };
-          return '<p><b>' + esc(cu.name) + '：</b>' + esc(c.text) + '<small> ' + fmtDate(c.date) + '</small></p>';
-        }).join('') + '</div>' +
-        '<form class="comment-form" data-form="comment" data-id="' + post.id + '"><input name="text" placeholder="写评论…" required><button type="submit">发送</button></form></article>';
-    }).join('') + '</div>';
-    var items = theme === 'theme-fitness' ? [
-      { href: 'fitness/profile', label: '健康档案', icon: icon('profile') }, { href: 'fitness/plaza', label: '用户广场', icon: icon('plaza') },
-      { href: 'fitness/shop', label: '农小禾慧选', icon: icon('shop') }, { href: 'fitness/me', label: '个人中心', icon: icon('me') }] : [
-      { href: 'health/daily', label: '健康管理', icon: icon('dash') }, { href: 'health/plaza', label: '用户广场', icon: icon('plaza') },
-      { href: 'health/shop', label: '农小禾慧选', icon: icon('shop') }, { href: 'health/me', label: '个人中心', icon: icon('me') }];
-    return shell(theme, theme === 'theme-fitness' ? '健身模式' : '健康模式', 'COMMUNITY', items, active, html,
-      '<button class="icon-btn" data-act="switch-mode" title="切换模式">⇄</button>');
-  }
-  V.fitnessPlaza = function (u, s) { return plaza(u, s, 'theme-fitness', 'fitness/plaza'); };
-  V.healthPlaza = function (u, s) { return plaza(u, s, 'theme-health', 'health/plaza'); };
-
-  /* ---------- 农小禾慧选（用户只读） ---------- */
-  function shop(u, state, theme, active) {
-    var recs = ENGINE.recommend(u, state.products);
-    var html = '<div class="page-head"><div><span class="kicker">SMART SELECT</span><h1>农小禾慧选</h1><p>依据你的健康档案智能匹配，普通用户只能浏览与加购，商品增减仅在管理员模式开放。</p></div>' +
-      '<button class="btn ghost" data-act="go-cart">查看购物车 →</button></div>';
-    if (recs.length) html += '<div class="ai-banner"><div><strong>AI 推荐</strong><p>基于' + esc(u.profile && u.profile.goal || '当前档案') + '目标与记录指标，为你优先展示：' + esc(recs.map(function (r) { return r.product.name; }).join('、')) + '</p></div><a href="#/' + active.split('/')[0] + '/me">查看理由 →</a></div>';
-    var groups = {};
-    (state.products || []).forEach(function (p) { (groups[p.category] = groups[p.category] || []).push(p); });
-    Object.keys(groups).forEach(function (cat) {
-      html += '<div class="shop-group"><h2>' + esc(cat) + '</h2><div class="product-grid">' + groups[cat].map(function (p) {
-        var nutri = Object.keys(p.nutrition || {}).map(function (k) { return '<span>' + esc(k) + ' ' + esc(p.nutrition[k]) + '</span>'; }).join('');
-        var org = (p.organic || []).map(function (x) { return '<i>' + esc(x) + '</i>'; }).join('');
-        return '<article class="product"><div class="product-top"><span class="cat">' + esc(p.category) + '</span><strong>¥' + p.price + '</strong></div><h3>' + esc(p.name) + '</h3><p>' + esc(p.desc) + '</p>' +
-          '<div class="nutri">' + nutri + '</div><div class="organic">' + org + '</div>' +
-          '<div class="product-foot"><span>' + p.points + ' 积分可兑换</span><button class="btn primary sm" data-act="add-cart" data-id="' + p.id + '">加入购物车</button></div></article>';
-      }).join('') + '</div></div>';
-    });
-    var items = theme === 'theme-fitness' ? [
-      { href: 'fitness/profile', label: '健康档案', icon: icon('profile') }, { href: 'fitness/plaza', label: '用户广场', icon: icon('plaza') },
-      { href: 'fitness/shop', label: '农小禾慧选', icon: icon('shop') }, { href: 'fitness/me', label: '个人中心', icon: icon('me') }] : [
-      { href: 'health/daily', label: '健康管理', icon: icon('dash') }, { href: 'health/plaza', label: '用户广场', icon: icon('plaza') },
-      { href: 'health/shop', label: '农小禾慧选', icon: icon('shop') }, { href: 'health/me', label: '个人中心', icon: icon('me') }];
-    return shell(theme, theme === 'theme-fitness' ? '健身模式' : '健康模式', 'SMART SELECT', items, active, html,
-      '<button class="icon-btn" data-act="switch-mode" title="切换模式">⇄</button>');
-  }
-  V.fitnessShop = function (u, s) { return shop(u, s, 'theme-fitness', 'fitness/shop'); };
-  V.healthShop = function (u, s) { return shop(u, s, 'theme-health', 'health/shop'); };
-
-  /* ---------- 个人中心 ---------- */
-  function me(u, state, theme, active) {
-    var isFit = theme === 'theme-fitness';
-    var ps = ENGINE.progressScore(u);
-    var recs = ENGINE.recommend(u, state.products);
-    var cart = u.cart || [];
-    var total = cart.reduce(function (sum, it) {
-      var p = state.products.filter(function (x) { return x.id === it.productId; })[0];
-      return sum + (p ? p.points * it.qty : 0);
-    }, 0);
-    var html = '<div class="page-head"><div><span class="kicker">MY CENTER</span><h1>个人中心</h1><p>' + esc(u.name) + ' · ' + (isFit ? '健身成长' : '身体健康') + '记录</p></div><div class="score-badge"><small>可用积分</small><strong>' + (u.points || 0) + '</strong><span>分</span></div></div>';
-
-    html += card('1 · AI 问答', '<div class="qa-log" id="qaLog">' + (u.qaLog || []).slice(-6).map(function (q) {
-      return '<div class="qa q"><span>我</span><p>' + esc(q.q) + '</p></div><div class="qa a"><span>AI</span><p>' + esc(q.a) + '</p></div>';
-    }).join('') + '</div><form data-form="qa" class="qa-form"><input name="q" placeholder="比如：体脂率怎么看？鱼油适合我吗？" required><button class="btn primary" type="submit">提问</button></form>' +
-      '<div class="chips"><button data-act="qa-chip" data-q="体脂率怎么看">体脂率怎么看</button><button data-act="qa-chip" data-q="小腿围低于多少要警惕">小腿围标准</button><button data-act="qa-chip" data-q="鱼油和什么有关">鱼油</button><button data-act="qa-chip" data-q="蛋白质和增肌的关系">蛋白质</button></div>');
-
-    html += card('2 · ' + (isFit ? '健身计划' : '健康计划'), '<div id="planBox">' + planHTML(u, state) + '</div>' +
-      '<button class="btn primary" data-act="gen-plan">' + (u.plan ? '重新生成方案' : '生成周期方案') + '</button>' +
-      (recs.length ? '<div class="rec-list"><h4>AI 推荐产品</h4>' + recs.map(function (r) {
-        return '<div><strong>' + esc(r.product.name) + '</strong><span>' + esc(r.reasons.join(' / ')) + ' · ¥' + r.product.price + '</span></div>';
-      }).join('') + '</div>' : ''));
-
-    html += card('3 · 个人积分', '<div class="points-panel"><div><span>当前积分</span><strong>' + (u.points || 0) + '</strong></div><p>在用户广场监督他人打卡，每次 +1 分；积分可兑换农小禾慧选产品。</p></div>');
-
-    html += card('4 · ' + (isFit ? '健身成长' : '身体健康'), '<div class="growth"><div><span>综合进度分</span><strong>' + ps.score + '</strong></div>' +
-      spark(u, 'weight', '体重趋势', ' kg', '#39ff9a') + spark(u, 'bodyFat', '体脂趋势', ' %', '#7be0ff') +
-      spark(u, 'waist', '腰围趋势', ' cm', '#ffd166') + '</div>' + photoTimeline(u));
-
-    html += card('5 · 购物车', '<div id="cartBox">' + cartHTML(u, state) + '</div>' +
-      '<div class="cart-total">合计 <strong>' + total + '</strong> 积分　<button class="btn primary sm" data-act="redeem"' + (total === 0 ? ' disabled' : '') + '>积分兑换</button></div>');
-
-    html += '<div class="setting-row"><button class="btn ghost" data-act="switch-mode">切换健康 / 健身模式</button><button class="btn ghost danger" data-act="reset-demo">重置演示数据</button></div>';
-    var items = isFit ? [
-      { href: 'fitness/profile', label: '健康档案', icon: icon('profile') }, { href: 'fitness/plaza', label: '用户广场', icon: icon('plaza') },
-      { href: 'fitness/shop', label: '农小禾慧选', icon: icon('shop') }, { href: 'fitness/me', label: '个人中心', icon: icon('me') }] : [
-      { href: 'health/daily', label: '健康管理', icon: icon('dash') }, { href: 'health/plaza', label: '用户广场', icon: icon('plaza') },
-      { href: 'health/shop', label: '农小禾慧选', icon: icon('shop') }, { href: 'health/me', label: '个人中心', icon: icon('me') }];
-    return shell(theme, isFit ? '健身模式' : '健康模式', 'MY CENTER', items, active, html,
-      '<button class="icon-btn" data-act="switch-mode" title="切换模式">⇄</button>');
-  }
-  function planHTML(u, state) {
-    if (!u.plan) return '<p class="empty">还没有生成方案。点击按钮，根据健康档案生成未来 4 周的训练、饮食与产品建议。</p>';
-    return '<div class="plan"><h4>' + esc(u.plan.title) + '</h4><h5>训练安排</h5><ul>' + u.plan.train.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
-      '<h5>饮食建议</h5><ul>' + u.plan.diet.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
-      '<p class="note">' + esc(u.plan.note) + '</p></div>';
-  }
-  function cartHTML(u, state) {
-    var cart = u.cart || [];
-    if (!cart.length) return '<p class="empty">购物车是空的，去农小禾慧选挑选产品吧。</p>';
-    return cart.map(function (it) {
-      var p = state.products.filter(function (x) { return x.id === it.productId; })[0];
-      if (!p) return '';
-      return '<div class="cart-item"><div><strong>' + esc(p.name) + '</strong><small>' + p.points + ' 积分 / 件 · ¥' + p.price + '</small></div>' +
-        '<div class="qty"><button data-act="cart-minus" data-id="' + p.id + '">−</button><span>' + it.qty + '</span><button data-act="cart-plus" data-id="' + p.id + '">＋</button></div></div>';
-    }).join('');
-  }
-  V.fitnessMe = function (u, s) { return me(u, s, 'theme-fitness', 'fitness/me'); };
-  V.healthMe = function (u, s) { return me(u, s, 'theme-health', 'health/me'); };
-
-  /* ---------- 健康模式：健康管理 ---------- */
-  V.healthDaily = function (u, state) {
-    var p = u.profile || {}, d = (u.healthDaily || [])[0] || {}, t = (u.healthTests || [])[0] || {};
-    var results = ENGINE.scoreAll(t, p);
-    var html = '<div class="page-head"><div><span class="kicker">DAILY WELLNESS</span><h1>健康管理</h1><p>日常指标每天记，专业自测每周一次。</p></div><div class="score-badge"><small>自测次数</small><strong>' + (u.healthTests || []).length + '</strong><span>次</span></div></div>';
-
-    html += card('0 · 基础信息（用于评分参考）', '<form data-form="health-profile" class="form-grid">' +
-      fld('gender', '性别', { type: 'select', options: [['female', '女'], ['male', '男']], value: p.gender }) +
-      fld('age', '年龄', { value: p.age }) + fld('height', '身高 cm', { value: p.height }) +
-      fld('weight', '体重 kg', { value: DATA.latest(u, 'weight') || p.weight, step: '0.1' }) +
-      '<div class="full">' + fld('medical', '既往病史 / 运动禁忌', { type: 'textarea', value: p.medical, ph: '如：高血压，服用降压药' }) + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">保存</button></div></form>');
-
-    html += card('1 · 日常记录', '<form data-form="health-daily" class="form-grid">' +
-      fld('date', '日期', { type: 'date', value: DATA.dateStr(0) }) +
-      fld('bpSys', '高压 mmHg', { value: d.bpSys }) + fld('bpDia', '低压 mmHg', { value: d.bpDia }) +
-      fld('hr', '心率 bpm', { value: d.hr }) + fld('glucose', '空腹血糖 mmol/L', { value: d.glucose, step: '0.1' }) +
-      fld('sleepMinutes', '入睡时长 分钟', { value: d.sleepMinutes }) + fld('wakeups', '醒夜次数', { value: d.wakeups }) +
-      '<div class="full">' + note('血压测量前静坐 5 分钟；血糖请空腹测量。记录趋势比单次数值更重要。') + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">保存今日记录</button></div></form>');
-
-    html += card('2 · 周期专业自测（每周 1 次）', '<form data-form="health-test" class="form-grid">' +
-      fld('date', '自测日期', { type: 'date', value: DATA.dateStr(0) }) +
-      fld('balance', '闭眼单脚站立 · 最好成绩 秒', { value: t.balance, step: '0.1' }) +
-      fld('calf', '小腿围 cm', { value: t.calf, step: '0.1' }) +
-      fld('cognition', '认知自测 答对题数 0–3', { value: t.cognition }) +
-      fld('breathHold', '屏气时间 秒', { value: t.breathHold }) +
-      fld('reach', '坐位体前屈 指尖相对脚尖 cm（超过为正，够不到为负）', { value: t.reach, step: '0.1' }) +
-      fld('sitToStand', '5 次起坐 用时 秒', { value: t.sitToStand, step: '0.1' }) +
-      '<div class="full"><details><summary>展开测试方法与评分标准</summary><ol class="standards">' +
-      '<li><b>闭眼单脚站立：</b>赤脚站立，双手下垂，闭眼抬脚离地 5–10cm，晃动/落地/睁眼即停，测 2 次取最好。60–69 岁：&lt;10 秒较弱，10–19 秒一般，≥20 秒较好；70–79 岁：&lt;5 秒较弱，5–9 秒一般，≥10 秒较好；80 岁以上：&lt;3 秒较弱，3–5 秒一般，&gt;5 秒较好。</li>' +
-      '<li><b>小腿围：</b>坐位屈膝约 90 度，软尺测最粗处。男性 ≥34cm 风险较低、&lt;34cm 可能不足；女性 ≥33cm 风险较低、&lt;33cm 可能不足。指环测试可辅助。</li>' +
-      '<li><b>屏气时间：</b>安静坐好，深吸气后屏气，憋不住即停，不要勉强。50 岁：&lt;20 秒偏弱，20–30 秒一般，&gt;30 秒较好；60 岁以上：&lt;20 秒偏弱，20–25 秒一般，25–45 秒较好，&gt;45 秒优秀；&lt;10 秒不建议反复测试并咨询医生。高血压、心脏病、脑血管病史者谨慎，头晕胸闷立即停止。</li>' +
-      '<li><b>坐位体前屈：</b>坐床边或垫子，双腿伸直并拢，脚尖回勾，腰背挺直缓慢前伸。40 岁以上男性：够不到脚尖偏弱、刚碰到一般、超过较好；40 岁以上女性：低于脚尖 3cm 内偏弱、碰到一般、超过较好。只能碰膝盖附近说明柔韧性较差，避免猛压猛拉。</li>' +
-      '<li><b>5 次起坐：</b>坐 40–46cm 高椅子，双脚平放，双手抱胸，不用手撑，连续起坐 5 次记时。&lt;12 秒较好；≥12 秒下肢力量可能下降。头晕、胸闷、腿软立即停止。</li>' +
-      '<li><b>认知自测：</b>如“回忆昨天吃过哪三种菜”或“倒述一组数字”，记录答对题数（0–3），仅作初步筛查。</li>' +
-      '</ol></details></div>' +
-      '<div class="full">' + note('自测统一输出五档结论：优秀 / 良好 / 一般 / 偏弱 / 较弱。结果仅作健康参考，异常请就医。') + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">保存本周自测并评分</button></div></form>');
-
-    html += card('3 · 本周结论', results.length ? '<div class="verdicts">' + results.map(function (r) {
-      return '<div class="verdict ' + esc(r.value.level) + '"><span>' + esc(r.key) + '</span><p>' + esc(r.value.text) + '</p></div>';
-    }).join('') + '</div>' : '<p class="empty">完成一次专业自测后，这里会显示逐项一句话结论。</p>');
-
-    html += card('4 · 症状与用药（按需填写）', '<form data-form="symptoms" class="form-grid">' +
-      '<div class="full"><span class="fl-title">专业症状自查（勾选出现的信号）</span><div class="check-grid">' +
-      ['下肢水肿', '运动后气短', '餐后困倦', '夜间憋醒', '胸闷胸痛', '头晕'].map(function (s) {
-        return '<label><input type="checkbox" name="symptom" value="' + s + '"' + ((u.symptoms || []).indexOf(s) >= 0 ? ' checked' : '') + '> ' + s + '</label>';
-      }).join('') + '</div></div>' +
-      fld('onTime', '是否按时服药', { type: 'select', options: ['是', '否', '不适用'], value: (u.meds || {}).onTime }) +
-      fld('missed', '有无漏服', { type: 'select', options: ['否', '偶有', '经常'], value: (u.meds || {}).missed }) +
-      '<div class="full">' + fld('adverse', '药物不良反应', { type: 'textarea', value: (u.meds || {}).adverse, ph: '无则留空' }) + '</div>' +
-      '<div class="full">' + note('下肢水肿、运动后气短、餐后困倦、夜间憋醒等是心衰或代谢异常的预警信号，出现请及时就医。') + '</div>' +
-      '<div class="full"><button class="btn primary" type="submit">保存症状与用药</button></div></form>');
-
-    html += card('5 · 日常趋势', '<div class="chart-grid">' + sparkHealth(u, 'bpSys', '收缩压趋势', ' mmHg', '#3fa876') +
-      sparkHealth(u, 'glucose', '空腹血糖趋势', ' mmol/L', '#6fc39a') + '</div>');
-
-    var items = [
-      { href: 'health/daily', label: '健康管理', icon: icon('dash') }, { href: 'health/plaza', label: '用户广场', icon: icon('plaza') },
-      { href: 'health/shop', label: '农小禾慧选', icon: icon('shop') }, { href: 'health/me', label: '个人中心', icon: icon('me') }];
-    return shell('theme-health', '健康模式', 'WELLNESS MODE', items, 'health/daily', html,
-      '<button class="icon-btn" data-act="switch-mode" title="切换模式">⇄</button>');
-  };
-  function sparkHealth(u, key, label, unit, color) {
-    var rows = (u.healthDaily || []).slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).slice(-8);
-    var vals = rows.map(function (r) { return r[key]; }).filter(function (v) { return typeof v === 'number'; });
-    if (vals.length < 2) return '<div class="chart-empty">' + esc(label) + '：至少记录两次后显示趋势</div>';
-    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals), span = max - min || 1;
-    var pts = vals.map(function (v, i) { return (8 + i * (284 / (vals.length - 1))).toFixed(1) + ',' + (72 - ((v - min) / span) * 56).toFixed(1); }).join(' ');
-    return '<div class="chart"><div class="chart-top"><span>' + esc(label) + '</span><strong>' + vals[vals.length - 1] + esc(unit) + '</strong></div>' +
-      '<svg viewBox="0 0 300 88" preserveAspectRatio="none"><polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>' +
-      '<div class="chart-axis"><span>' + fmtDate(rows[0].date) + '</span><span>' + fmtDate(rows[rows.length - 1].date) + '</span></div></div>';
-  }
-
-  /* ---------- 管理员 ---------- */
-  function adminShell(title, active, content) {
-    var items = [
-      { href: 'admin/products', label: '慧选产品', icon: icon('shop') },
-      { href: 'admin/users', label: '用户档案', icon: icon('users') },
-      { href: 'admin/carts', label: '购物车汇总', icon: icon('cart') }
-    ];
-    return '<div class="app-shell theme-admin"><div class="grid-bg"></div><header class="topbar admin-top"><div class="brand"><span class="logo">禾</span><div><strong>ADMIN CONSOLE</strong><small>农小禾 · 管理中枢</small></div></div>' +
-      '<div class="top-right"><span class="live"><i></i> SYSTEM ONLINE</span><a class="ghost-btn" href="#/login">退出管理</a></div></header>' +
-      '<main class="main admin-main">' + content + '</main>' + nav('theme-admin', items, active) + '</div>';
-  }
-  V.adminProducts = function (state, filter) {
-    var products = state.products || [];
-    var list = filter ? products.filter(function (p) { return (p.name + p.category + (p.tags || []).join('')).toLowerCase().indexOf(filter.toLowerCase()) >= 0; }) : products;
-    var html = '<div class="page-head admin-head"><div><span class="kicker">PRODUCT CONTROL</span><h1>农小禾慧选产品</h1><p>管理员可增加、编辑、删除产品，并标注营养成分与有机物质。</p></div>' +
-      '<button class="btn admin-btn" data-act="product-new">＋ 新增产品</button></div>' +
-      '<form data-form="product-search" class="admin-search"><input name="q" placeholder="搜索产品名称 / 品类 / 标签" value="' + esc(filter || '') + '"><button type="submit">搜索</button></form>' +
-      '<div class="admin-stats"><div><span>产品总数</span><strong>' + products.length + '</strong></div><div><span>品类数</span><strong>' + Object.keys(products.reduce(function (a, p) { a[p.category] = 1; return a; }, {})).length + '</strong></div><div><span>当前显示</span><strong>' + list.length + '</strong></div></div>' +
-      '<div class="admin-table"><div class="tr head"><span>产品</span><span>品类</span><span>价格 / 积分</span><span>营养与有机标注</span><span>操作</span></div>' +
-      list.map(function (p) {
-        var nutri = Object.keys(p.nutrition || {}).map(function (k) { return k + ' ' + p.nutrition[k]; }).join(' · ');
-        return '<div class="tr"><span><b>' + esc(p.name) + '</b><small>' + esc(p.desc) + '</small></span><span>' + esc(p.category) + '</span>' +
-          '<span>¥' + p.price + '<small>' + p.points + ' 积分</small></span><span class="mini">' + esc(nutri) + '<small>' + esc((p.organic || []).join(' · ')) + '</small></span>' +
-          '<span class="ops"><button data-act="product-edit" data-id="' + p.id + '">编辑</button><button data-act="product-del" data-id="' + p.id + '">删除</button></span></div>';
-      }).join('') + '</div>';
-    return adminShell('PRODUCTS', 'admin/products', html);
-  };
-  V.adminUsers = function (state, filter) {
-    var users = state.users || [];
-    var q = (filter || '').toLowerCase();
-    var list = q ? users.filter(function (u) { return (u.name + u.phone).toLowerCase().indexOf(q) >= 0; }) : users;
-    var html = '<div class="page-head admin-head"><div><span class="kicker">USER ARCHIVE</span><h1>用户健康档案汇总</h1><p>全量用户档案、身体记录与 AI 生成方案，支持搜索查询。</p></div></div>' +
-      '<form data-form="user-search" class="admin-search"><input name="q" placeholder="搜索姓名 / 手机号" value="' + esc(filter || '') + '"><button type="submit">搜索用户</button></form>' +
-      '<div class="user-grid">' + list.map(function (u) {
-        var p = u.profile || {}, plan = u.plan;
-        return '<article class="user-card"><div class="uc-head"><div class="avatar">' + esc(u.name.slice(0, 1)) + '</div><div><strong>' + esc(u.name) + '</strong><small>' + esc(u.phone) + ' · ' + esc(u.mode === 'health' ? '健康模式' : u.mode === 'fitness' ? '健身模式' : '未选择') + '</small></div></div>' +
-          '<div class="uc-meta"><span>性别 ' + esc(p.gender === 'male' ? '男' : '女') + '</span><span>年龄 ' + esc(p.age) + '</span><span>目标 ' + esc(p.goal) + '</span><span>积分 ' + (u.points || 0) + '</span></div>' +
-          '<div class="uc-kv"><span>身高 ' + esc(p.height) + 'cm</span><span>体重 ' + esc(DATA.latest(u, 'weight') || p.weight) + 'kg</span><span>体脂 ' + esc(DATA.latest(u, 'bodyFat') || '—') + '%</span><span>病史 ' + esc(p.medical || '无') + '</span></div>' +
-          '<div class="uc-plan"><b>AI 方案</b><p>' + (plan ? esc(plan.title) + ' · 训练 ' + plan.train.length + ' 条 / 饮食 ' + plan.diet.length + ' 条' : '尚未生成') + '</p></div>' +
-          '<div class="uc-foot"><button class="admin-btn sm" data-act="user-detail" data-id="' + u.id + '">查看完整档案</button><button class="admin-btn ghost sm" data-act="user-plan" data-id="' + u.id + '">查看 AI 方案</button></div></article>';
-      }).join('') + '</div>';
-    return adminShell('USERS', 'admin/users', html);
-  };
-  V.adminCarts = function (state, filter) {
-    var users = state.users || [], q = (filter || '').toLowerCase();
-    var list = q ? users.filter(function (u) { return (u.name + u.phone).toLowerCase().indexOf(q) >= 0; }) : users;
-    var html = '<div class="page-head admin-head"><div><span class="kicker">CART INTELLIGENCE</span><h1>购物车选品汇总</h1><p>按用户查看购物车中的商品种类、数量与积分合计。</p></div></div>' +
-      '<form data-form="cart-search" class="admin-search"><input name="q" placeholder="搜索用户姓名 / 手机号" value="' + esc(filter || '') + '"><button type="submit">搜索用户</button></form>' +
-      '<div class="cart-grid">' + list.map(function (u) {
-        var cart = u.cart || [], count = cart.reduce(function (a, x) { return a + x.qty; }, 0);
-        var points = cart.reduce(function (a, x) {
-          var p = state.products.filter(function (y) { return y.id === x.productId; })[0];
-          return a + (p ? p.points * x.qty : 0);
-        }, 0);
-        return '<article class="cart-card"><div class="cc-head"><strong>' + esc(u.name) + '</strong><span>' + esc(u.phone) + '</span></div>' +
-          '<div class="cc-stat"><div><span>商品种类</span><b>' + cart.length + '</b></div><div><span>商品数量</span><b>' + count + '</b></div><div><span>积分合计</span><b>' + points + '</b></div></div>' +
-          '<ul>' + cart.map(function (x) {
-            var p = state.products.filter(function (y) { return y.id === x.productId; })[0];
-            return '<li><span>' + esc(p ? p.name : '已下架商品') + '</span><b>× ' + x.qty + '</b></li>';
-          }).join('') + '</ul>' +
-          (cart.length ? '' : '<p class="empty">购物车为空</p>') + '</article>';
-      }).join('') + '</div>';
-    return adminShell('CARTS', 'admin/carts', html);
-  };
-
-  V.modals = {
-    userCode: function (phone) {
-      return '<div class="modal-card"><span class="kicker">LOGIN VERIFICATION</span><h2>用户登录验证</h2>' +
-        '<p>已核验账号 ' + esc(phone) + ' 的密码。请输入短信验证码继续。</p>' +
-        '<form data-form="user-code"><label class="fl"><span>验证码</span><input name="code" type="tel" maxlength="6" placeholder="演示验证码 888888" required></label>' +
-        '<div class="modal-actions"><button type="button" class="btn ghost" data-act="close-modal">取消</button><button type="submit" class="btn primary">验证并登录</button></div></form>' +
-        '<small class="demo-hint">演示验证码：888888（本地模拟，不发送真实短信）</small></div>';
-    },
-    adminCode: function () {
-      return '<div class="modal-card admin-modal"><span class="kicker">RESTRICTED ACCESS</span><h2>管理员身份验证</h2>' +
-        '<p>已识别内部号码 ' + DATA.ADMIN_PHONE + '。请输入短信验证码继续。</p>' +
-        '<form data-form="admin-code"><label class="fl"><span>验证码</span><input name="code" type="tel" maxlength="6" placeholder="演示验证码 888888" required></label>' +
-        '<div class="modal-actions"><button type="button" class="btn ghost" data-act="close-modal">取消</button><button type="submit" class="btn admin-btn">验证并进入</button></div></form>' +
-        '<small class="demo-hint">演示验证码：888888（本地模拟，不发送真实短信）</small></div>';
-    },
-    productForm: function (p) {
-      p = p || {};
-      return '<div class="modal-card"><h2>' + (p.id ? '编辑产品' : '新增产品') + '</h2><form data-form="product-save" data-id="' + esc(p.id || '') + '" class="form-grid">' +
-        fld('name', '产品名称', { type: 'text', value: p.name }) + fld('category', '品类', { type: 'text', value: p.category }) +
-        fld('price', '价格 ¥', { value: p.price, step: '0.1' }) + fld('points', '兑换积分', { value: p.points }) +
-        '<div class="full">' + fld('desc', '产品描述', { type: 'textarea', value: p.desc }) + '</div>' +
-        '<div class="full">' + fld('nutritionText', '营养成分（每行 名称:含量）', { type: 'textarea', value: Object.keys(p.nutrition || {}).map(function (k) { return k + ':' + p.nutrition[k]; }).join('\n') }) + '</div>' +
-        '<div class="full">' + fld('organicText', '有机物质 / 认证（逗号分隔）', { type: 'text', value: (p.organic || []).join('，') }) + '</div>' +
-        '<div class="full">' + fld('tagsText', '标签（逗号分隔，如 减脂,控糖）', { type: 'text', value: (p.tags || []).join('，') }) + '</div>' +
-        '<div class="full modal-actions"><button type="button" class="btn ghost" data-act="close-modal">取消</button><button type="submit" class="btn admin-btn">保存产品</button></div></form></div>';
-    },
-    userDetail: function (u, state) {
-      var p = u.profile || {}, rs = (u.records || []).slice(0, 5);
-      return '<div class="modal-card wide"><h2>' + esc(u.name) + ' · 完整健康档案</h2>' +
-        '<p>手机号 ' + esc(u.phone) + ' · ' + esc(u.mode || '未选择模式') + ' · 注册 ' + esc(u.createdAt) + '</p>' +
-        '<h4>基础档案</h4><div class="detail-grid"><span>性别 ' + esc(p.gender) + '</span><span>年龄 ' + esc(p.age) + '</span><span>身高 ' + esc(p.height) + 'cm</span><span>目标 ' + esc(p.goal) + '</span><span>目标体重 ' + esc(p.targetWeight) + 'kg</span><span>目标体脂 ' + esc(p.targetBodyFat) + '%</span><span>病史 ' + esc(p.medical || '无') + '</span></div>' +
-        '<h4>最近记录</h4><div class="detail-table">' + (rs.length ? rs.map(function (r) {
-          return '<div><span>' + esc(r.date) + '</span><span>体重 ' + esc(r.weight) + '</span><span>体脂 ' + esc(r.bodyFat) + '</span><span>肌肉 ' + esc(r.muscle) + '</span><span>腰围 ' + esc(r.waist) + '</span></div>';
-        }).join('') : '<p class="empty">暂无记录</p>') + '</div>' +
-        '<h4>健康模式记录</h4><p>日常记录 ' + (u.healthDaily || []).length + ' 条 · 专业自测 ' + (u.healthTests || []).length + ' 条 · 症状 ' + (u.symptoms || []).join('、') + '</p>' +
-        '<div class="modal-actions"><button class="btn admin-btn" data-act="close-modal">关闭</button></div></div>';
-    },
-    userPlan: function (u, state) {
-      var plan = u.plan || ENGINE.makePlan(u, state.products);
-      return '<div class="modal-card wide"><h2>' + esc(u.name) + ' · AI 方案</h2><div class="plan">' +
-        '<h4>' + esc(plan.title) + '</h4><h5>训练安排</h5><ul>' + plan.train.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
-        '<h5>饮食建议</h5><ul>' + plan.diet.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
-        '<h5>推荐产品</h5><ul>' + (plan.products || []).map(function (x) { return '<li>' + esc(x.name) + '（' + esc(x.reason) + '）</li>'; }).join('') + '</ul>' +
-        '<p class="note">' + esc(plan.note) + '</p></div><div class="modal-actions"><button class="btn admin-btn" data-act="close-modal">关闭</button></div></div>';
-    }
-  };
-
-  V.esc = esc;
-  window.VIEWS = V;
-})();
-
-</script>
-<script>
-/* 农小禾 Agent · 路由与交互 */
-(function () {
-  'use strict';
-  var state = DATA.load();
-  var filters = { products: '', users: '', carts: '' };
-  var app = document.getElementById('app');
-  var modalRoot = document.getElementById('modal-root');
-  var toastEl = document.getElementById('toast');
-  var toastTimer = null;
-  var pendingLogin = null;
-
-  function save() { DATA.save(state); }
-  function esc(s) { return VIEWS.esc(s); }
-  function toast(msg, bad) {
-    toastEl.textContent = msg;
-    toastEl.className = 'toast show' + (bad ? ' bad' : '');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toastEl.className = 'toast'; }, 2600);
-  }
-  function openModal(html) { modalRoot.innerHTML = '<div class="modal-mask" data-act="close-modal">' + html + '</div>'; }
-  function closeModal() { modalRoot.innerHTML = ''; }
-  function go(hash) { location.hash = hash; }
-
-  function currentPath() {
-    var h = (location.hash || '').replace(/^#\/?/, '');
-    return h || 'login';
-  }
-
-  function render() {
-    var path = currentPath();
-    var session = state.session;
-    var parts = path.split('/');
-    var root = parts[0];
-    if (path === 'login') { app.innerHTML = VIEWS.login(); return; }
-    if (!session) { go('#/login'); return; }
-    if (session.type === 'admin') {
-      if (root !== 'admin') { go('#/admin/products'); return; }
-      if (path === 'admin/products') app.innerHTML = VIEWS.adminProducts(state, filters.products);
-      else if (path === 'admin/users') app.innerHTML = VIEWS.adminUsers(state, filters.users);
-      else if (path === 'admin/carts') app.innerHTML = VIEWS.adminCarts(state, filters.carts);
-      else app.innerHTML = VIEWS.adminProducts(state, filters.products);
-      window.scrollTo(0, 0);
-      return;
-    }
-    var u = DATA.getUser(session.userId);
-    if (!u) { state.session = null; save(); go('#/login'); return; }
-    if (path === 'mode') { app.innerHTML = VIEWS.mode(u); window.scrollTo(0, 0); return; }
-    if (!u.mode) {
-      if (root === 'fitness' || root === 'health') { u.mode = root; save(); }
-      else { go('#/mode'); return; }
-    }
-    var expected = u.mode;
-    if (root !== expected) { go('#/' + expected + '/profile'); return; }
-    if (path === 'fitness/profile') app.innerHTML = VIEWS.fitnessProfile(u, state);
-    else if (path === 'fitness/plaza') app.innerHTML = VIEWS.fitnessPlaza(u, state);
-    else if (path === 'fitness/shop') app.innerHTML = VIEWS.fitnessShop(u, state);
-    else if (path === 'fitness/me') app.innerHTML = VIEWS.fitnessMe(u, state);
-    else if (path === 'health/daily') app.innerHTML = VIEWS.healthDaily(u, state);
-    else if (path === 'health/plaza') app.innerHTML = VIEWS.healthPlaza(u, state);
-    else if (path === 'health/shop') app.innerHTML = VIEWS.healthShop(u, state);
-    else if (path === 'health/me') app.innerHTML = VIEWS.healthMe(u, state);
-    else app.innerHTML = VIEWS.fitnessProfile(u, state);
-    window.scrollTo(0, 0);
-  }
-
-  /* ---------- 事件委托 ---------- */
-  document.addEventListener('click', function (e) {
-    var el = e.target.closest('[data-act]');
-    if (!el) return;
-    var act = el.getAttribute('data-act');
-    var id = el.getAttribute('data-id');
-    if (act === 'admin-entry') {
-      var phone = (document.getElementById('loginPhone') || {}).value || '';
-      if (phone.trim() === DATA.ADMIN_PHONE) openModal(VIEWS.modals.adminCode());
-      else toast('仅内部号码可使用管理员入口', true);
-      return;
-    }
-    if (act === 'close-modal') {
-      if (el.classList.contains('modal-mask') && e.target !== el) return;
-      if (modalRoot.querySelector('[data-form="user-code"]')) pendingLogin = null;
-      closeModal(); return;
-    }
-    var u = DATA.currentUser();
-    var isAdmin = state.session && state.session.type === 'admin';
-    if (!u && !isAdmin && act !== 'reset-demo' && act !== 'switch-mode') return;
-    if (isAdmin && !u && ['product-new', 'product-edit', 'product-del', 'user-detail', 'user-plan'].indexOf(act) < 0) return;
-    switch (act) {
-      case 'switch-mode':
-        if (!u) { toast('请先登录', true); return; }
-        u.mode = u.mode === 'fitness' ? 'health' : 'fitness';
-        save(); go('#/' + u.mode + '/' + (u.mode === 'fitness' ? 'profile' : 'daily')); toast('已切换' + (u.mode === 'fitness' ? '健身' : '健康') + '模式');
-        break;
-      case 'upload-photo': {
-        var form = el.closest('form');
-        var file = form && form.elements.photo && form.elements.photo.files[0];
-        if (!file) { toast('请先选择照片', true); return; }
-        if (!/^image\//.test(file.type)) { toast('请选择图片文件', true); return; }
-        var reader = new FileReader();
-        reader.onload = function (ev) {
-          var img = new Image();
-          img.onload = function () {
-            var scale = Math.min(1, 480 / img.width);
-            var cv = document.createElement('canvas');
-            cv.width = Math.max(1, Math.round(img.width * scale)); cv.height = Math.max(1, Math.round(img.height * scale));
-            cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-            u.photos = u.photos || [];
-            u.photos.push({ date: DATA.dateStr(0), part: form.elements.part.value, src: cv.toDataURL('image/jpeg', 0.65) });
-            save(); render(); toast('体态照片已保存');
-          };
-          img.src = ev.target.result;
-        };
-        reader.readAsDataURL(file);
-        break;
-      }
-      case 'remind': {
-        var type = el.getAttribute('data-type');
-        u.reminders = u.reminders || {};
-        u.reminders[type] = DATA.dateStr(0);
-        save(); toast(type === 'waist' ? '已设置本周围度记录提醒' : '已设置本月拍照 / 体测提醒');
-        break;
-      }
-      case 'like': {
-        var post = state.posts.filter(function (p) { return p.id === id; })[0];
-        if (!post) return;
-        post.likes = post.likes || [];
-        var i = post.likes.indexOf(u.id);
-        if (i >= 0) post.likes.splice(i, 1); else post.likes.push(u.id);
-        save(); render(); break;
-      }
-      case 'focus-comment': {
-        var box = el.closest('article').querySelector('.comment-form input');
-        if (box) box.focus();
-        break;
-      }
-      case 'share': {
-        var p2 = state.posts.filter(function (p) { return p.id === id; })[0];
-        if (!p2) return;
-        p2.shares = (p2.shares || 0) + 1; save(); render(); toast('已转发'); break;
-      }
-      case 'checkin': {
-        var p3 = state.posts.filter(function (p) { return p.id === id; })[0];
-        if (!p3 || p3.authorId === u.id) return;
-        p3.checkins = p3.checkins || [];
-        var today = DATA.dateStr(0);
-        var dup = p3.checkins.some(function (c) { return c.userId === u.id && c.date === today; });
-        if (dup) { toast('今天已经监督过啦', true); return; }
-        p3.checkins.push({ userId: u.id, date: today });
-        u.points = (u.points || 0) + 1;
-        save(); render(); toast('监督打卡成功，积分 +1'); break;
-      }
-      case 'remind-author': {
-        var p4 = state.posts.filter(function (p) { return p.id === id; })[0];
-        if (!p4) return;
-        p4.reminded = p4.reminded || [];
-        p4.reminded.push({ by: u.id, date: DATA.dateStr(0) });
-        save(); toast('已提醒发布者今日打卡'); break;
-      }
-      case 'go-cart': go('#/' + u.mode + '/me'); break;
-      case 'add-cart': {
-        var p5 = state.products.filter(function (p) { return p.id === id; })[0];
-        if (!p5) return;
-        var found = (u.cart || []).filter(function (c) { return c.productId === id; })[0];
-        if (found) found.qty += 1; else (u.cart = u.cart || []).push({ productId: id, qty: 1 });
-        save(); toast('已加入购物车：' + p5.name); break;
-      }
-      case 'cart-plus': case 'cart-minus': {
-        var item = (u.cart || []).filter(function (c) { return c.productId === id; })[0];
-        if (!item) return;
-        item.qty += act === 'cart-plus' ? 1 : -1;
-        if (item.qty <= 0) u.cart = u.cart.filter(function (c) { return c.productId !== id; });
-        save(); render(); break;
-      }
-      case 'redeem': {
-        var total = (u.cart || []).reduce(function (sum, it) {
-          var p = state.products.filter(function (x) { return x.id === it.productId; })[0];
-          return sum + (p ? p.points * it.qty : 0);
-        }, 0);
-        if (total <= 0) { toast('购物车为空', true); return; }
-        if ((u.points || 0) < total) { toast('积分不足，还需 ' + (total - u.points) + ' 分', true); return; }
-        if (!window.confirm('确认用 ' + total + ' 积分兑换购物车商品？')) return;
-        u.orders = u.orders || [];
-        u.orders.push({ date: DATA.dateStr(0), items: DATA.deepCopy(u.cart), points: total });
-        u.points -= total; u.cart = [];
-        save(); render(); toast('兑换成功，积分已扣减'); break;
-      }
-      case 'gen-plan': {
-        u.plan = ENGINE.makePlan(u, state.products);
-        u.plan.createdAt = DATA.dateStr(0);
-        save(); render(); toast('方案已生成'); break;
-      }
-      case 'qa-chip': {
-        var input = document.querySelector('[data-form="qa"] input');
-        if (input) { input.value = el.getAttribute('data-q') || ''; input.focus(); }
-        break;
-      }
-      case 'reset-demo':
-        if (window.confirm('重置将清除全部本地演示数据，确认继续？')) {
-          state = DATA.reset(); render(); toast('演示数据已重置');
-        }
-        break;
-      case 'product-new': openModal(VIEWS.modals.productForm(null)); break;
-      case 'product-edit': {
-        var p6 = state.products.filter(function (p) { return p.id === id; })[0];
-        if (p6) openModal(VIEWS.modals.productForm(p6));
-        break;
-      }
-      case 'product-del': {
-        var p7 = state.products.filter(function (p) { return p.id === id; })[0];
-        if (!p7 || !window.confirm('确认删除产品「' + p7.name + '」？')) return;
-        state.products = state.products.filter(function (p) { return p.id !== id; });
-        save(); render(); toast('产品已删除'); break;
-      }
-      case 'user-detail': {
-        var ud = DATA.getUser(id);
-        if (ud) openModal(VIEWS.modals.userDetail(ud, state));
-        break;
-      }
-      case 'user-plan': {
-        var up = DATA.getUser(id);
-        if (up) openModal(VIEWS.modals.userPlan(up, state));
-        break;
-      }
-    }
-  });
-
-  document.addEventListener('input', function (e) {
-    if (e.target && e.target.id === 'loginPhone') {
-      var btn = document.getElementById('adminEntry');
-      if (btn) btn.classList.toggle('hidden', e.target.value.trim() !== DATA.ADMIN_PHONE);
-    }
-  });
-
-  function values(form) {
-    var out = {};
-    Array.prototype.forEach.call(form.elements, function (el) {
-      if (!el.name) return;
-      if (el.type === 'checkbox') {
-        if (el.checked) (out[el.name] = out[el.name] || []).push(el.value);
-      } else out[el.name] = el.value;
-    });
-    return out;
-  }
-  function upsertRecord(u, data) {
-    u.records = u.records || [];
-    var found = u.records.filter(function (r) { return r.date === data.date; })[0];
-    if (found) Object.keys(data).forEach(function (k) { found[k] = data[k]; });
-    else u.records.unshift(data);
-    u.records.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-  }
-  function upsertDaily(u, data) {
-    u.healthDaily = u.healthDaily || [];
-    var found = u.healthDaily.filter(function (r) { return r.date === data.date; })[0];
-    if (found) Object.keys(data).forEach(function (k) { found[k] = data[k]; }); else u.healthDaily.unshift(data);
-    u.healthDaily.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-  }
-  function upsertTest(u, data) {
-    u.healthTests = u.healthTests || [];
-    var found = u.healthTests.filter(function (r) { return r.date === data.date; })[0];
-    if (found) Object.keys(data).forEach(function (k) { found[k] = data[k]; }); else u.healthTests.unshift(data);
-    u.healthTests.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-  }
-
-  document.addEventListener('submit', function (e) {
-    var form = e.target.closest('form[data-form]');
-    if (!form) return;
-    e.preventDefault();
-    var name = form.getAttribute('data-form');
-    var v = values(form);
-    var u = DATA.currentUser();
-
-    if (name === 'login') {
-      var phone = (v.phone || '').trim(), pwd = v.password || '';
-      var found = state.users.filter(function (x) { return x.phone === phone; })[0];
-      if (!found || found.password !== pwd) { toast('手机号或密码错误（演示密码 123456）', true); return; }
-      pendingLogin = { userId: found.id, phone: phone };
-      openModal(VIEWS.modals.userCode(phone)); return;
-    }
-    if (name === 'user-code') {
-      if (!pendingLogin) { closeModal(); toast('验证已失效，请重新登录', true); return; }
-      if ((v.code || '').trim() !== DATA.LOGIN_CODE) { toast('验证码错误', true); return; }
-      var pendingUser = DATA.getUser(pendingLogin.userId);
-      if (!pendingUser) { pendingLogin = null; closeModal(); toast('账号不存在，请重新登录', true); return; }
-      pendingUser.mode = null;
-      state.session = { type: 'user', userId: pendingUser.id };
-      pendingLogin = null;
-      save(); closeModal(); go('#/mode'); toast('登录成功，请选择模式'); return;
-    }
-    if (name === 'admin-code') {
-      if ((v.code || '').trim() !== DATA.ADMIN_CODE) { toast('验证码错误', true); return; }
-      state.session = { type: 'admin' };
-      save(); closeModal(); go('#/admin/products'); toast('已进入管理员模式'); return;
-    }
-    var adminForms = ['product-search', 'user-search', 'cart-search', 'product-save'];
-    if (!u && adminForms.indexOf(name) < 0) { toast('请先登录', true); return; }
-
-    if (name === 'basic') {
-      u.profile = u.profile || {};
-      ['gender', 'age', 'height', 'targetWeight', 'targetBodyFat', 'goal', 'medical'].forEach(function (k) { if (v[k] != null) u.profile[k] = v[k]; });
-      u.profile.weight = parseFloat(v.weight) || u.profile.weight;
-      upsertRecord(u, { date: DATA.dateStr(0), weight: u.profile.weight });
-      save(); render(); toast('基础档案已保存'); return;
-    }
-    if (name === 'record') {
-      var group = form.getAttribute('data-group') || 'body';
-      var payload = { date: v.date || DATA.dateStr(0) };
-      var keys = {
-        body: ['bodyFat', 'muscle', 'bmr', 'visceralFat', 'water', 'bone'],
-        girth: ['waist', 'hip', 'chest', 'upperArm', 'thigh', 'whr'],
-        recovery: ['restingHR', 'hrv', 'sleepHours', 'fatigue', 'trainingLoad', 'liftNote'],
-        optional: ['bpSys', 'bpDia', 'glucose', 'spo2', 'vo2max', 'rr']
-      }[group] || [];
-      keys.forEach(function (k) { if (v[k] !== '' && v[k] != null) payload[k] = isNaN(Number(v[k])) ? v[k] : Number(v[k]); });
-      if (group === 'girth' && payload.waist && payload.hip && !payload.whr) payload.whr = Math.round(payload.waist / payload.hip * 100) / 100;
-      if (group === 'optional' && v.medical != null) u.profile.medical = v.medical;
-      upsertRecord(u, payload); save(); render(); toast('记录已保存'); return;
-    }
-    if (name === 'health-profile') {
-      u.profile = u.profile || {};
-      ['gender', 'age', 'height', 'medical'].forEach(function (k) { if (v[k] != null) u.profile[k] = v[k]; });
-      u.profile.weight = parseFloat(v.weight) || u.profile.weight;
-      save(); render(); toast('基础信息已保存'); return;
-    }
-    if (name === 'health-daily') {
-      var daily = { date: v.date || DATA.dateStr(0) };
-      ['bpSys', 'bpDia', 'hr', 'glucose', 'sleepMinutes', 'wakeups'].forEach(function (k) {
-        if (v[k] !== '') daily[k] = Number(v[k]) || 0;
-      });
-      upsertDaily(u, daily); save(); render(); toast('今日记录已保存'); return;
-    }
-    if (name === 'health-test') {
-      var test = { date: v.date || DATA.dateStr(0) };
-      ['balance', 'calf', 'cognition', 'breathHold', 'reach', 'sitToStand'].forEach(function (k) {
-        if (v[k] !== '') test[k] = Number(v[k]) || 0;
-      });
-      upsertTest(u, test); save(); render(); toast('自测已保存，结论已更新'); return;
-    }
-    if (name === 'symptoms') {
-      u.symptoms = v.symptom || [];
-      u.meds = { onTime: v.onTime, missed: v.missed, adverse: v.adverse || '' };
-      save(); render(); toast('症状与用药已保存'); return;
-    }
-    if (name === 'post') {
-      var planText = v.plan || (u.plan ? u.plan.title + '：' + u.plan.train[0] : '暂未生成方案');
-      state.posts.unshift({ id: DATA.uid('post'), authorId: u.id, title: v.title || '我的健康记录',
-        content: v.content || '', plan: planText, createdAt: DATA.dateStr(0), likes: [], comments: [], shares: 0, checkins: [], reminded: [] });
-      save(); render(); toast('方案已发布到广场'); return;
-    }
-    if (name === 'comment') {
-      var post = state.posts.filter(function (p) { return p.id === form.getAttribute('data-id'); })[0];
-      if (post && (v.text || '').trim()) {
-        post.comments = post.comments || [];
-        post.comments.push({ userId: u.id, text: v.text.trim(), date: DATA.dateStr(0) });
-        save(); render(); toast('评论已发送');
-      }
-      return;
-    }
-    if (name === 'qa') {
-      var q = (v.q || '').trim();
-      if (!q) return;
-      var answer = ENGINE.ask(q, u, state.products);
-      u.qaLog = u.qaLog || [];
-      u.qaLog.push({ q: q, a: answer, date: DATA.dateStr(0) });
-      save(); render();
-      var log = document.getElementById('qaLog');
-      if (log) log.scrollTop = log.scrollHeight;
-      return;
-    }
-    if (name === 'product-search') { filters.products = (v.q || '').trim(); render(); return; }
-    if (name === 'user-search') { filters.users = (v.q || '').trim(); render(); return; }
-    if (name === 'cart-search') { filters.carts = (v.q || '').trim(); render(); return; }
-    if (name === 'product-save') {
-      var nutrition = {};
-      (v.nutritionText || '').split(/\n+/).forEach(function (line) {
-        var idx = line.indexOf(':'); if (idx < 0) idx = line.indexOf('：');
-        if (idx > 0) nutrition[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
-      });
-      function splitTags(t) { return (t || '').split(/[,，]/).map(function (x) { return x.trim(); }).filter(Boolean); }
-      var data = {
-        name: (v.name || '').trim() || '未命名产品', category: (v.category || '').trim() || '其他',
-        price: Number(v.price) || 0, points: Number(v.points) || 0, desc: v.desc || '',
-        nutrition: nutrition, organic: splitTags(v.organicText), tags: splitTags(v.tagsText)
-      };
-      var pid = form.getAttribute('data-id');
-      if (pid) {
-        var target = state.products.filter(function (p) { return p.id === pid; })[0];
-        if (target) Object.keys(data).forEach(function (k) { target[k] = data[k]; });
-      } else {
-        data.id = DATA.uid('p'); state.products.push(data);
-      }
-      save(); closeModal(); render(); toast('产品已保存'); return;
-    }
-  });
-
-  window.addEventListener('hashchange', render);
-  if (!location.hash) location.hash = '#/login';
-  render();
-})();
-
-</script>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

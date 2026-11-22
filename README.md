@@ -1,27 +1,31 @@
-# 农小禾健康 Agent
+# 农小禾健康 · 一日三餐，顺时而食
 
-面向大学生与年轻人群的 AI 健康生活助手。原生 HTML/CSS/JS 单页应用，提供「可离线运行的本地版」与「云端版」两种形态。
+面向大学生的 AI 健康配餐助手。6 个问题测出身体数据与口味偏好，按预算与忌口自动配好一周食谱，算到每一元；小禾 AI 记得你的口味，随时能聊。
 
 ## 功能
-- 注册 / 登录（手机号 + 密码，二次验证码演示值 888888）
-- 健康自测 → 评分模型 + 规则引擎生成运动 / 饮食 / 作息方案
-- 双模式：健身模式 / 健康模式，各 4 页
-- 健康档案、打卡积分、农小禾慧选商城积分兑换、社区广场互动
-- 管理员：产品增删改、用户档案与购物车查看、搜索
+- 手机号登录（未注册自动建号；演示环境验证码在页面内显示）
+- 6 问题问卷 → 定制一周健康方案（按预算、忌口、过敏、慢病禁忌配）
+- 四大标签：陪伴 / 记录 / 慧选 / 我的
+- 小禾 AI 对话（意图识别 + 大模型兜底）
+- 慧选商城与心愿单
+- 树洞社区（打卡 / 发帖 / 互动）
+- 运营中台：慧选产品、健康档案、心愿单、订单、广场管理
 
 ## 目录
-- `docs/index.html` — 可离线运行的单文件演示版（GitHub Pages 入口，无外部依赖）
-- `source/` — 云端版源码（入口 `index.html`，依赖 WorkBuddy Cloud SDK，需在绑定应用内运行）
+- `docs/index.html` — 应用入口
+- `docs/css/app.css` — 样式
+- `docs/js/app.js` — 路由与交互
+- `docs/js/data.js` — 数据层
+- `docs/js/engine.js` — 配餐 / 推荐 / 评分引擎
+- `docs/js/chat.js` — 小禾 AI 对话（意图识别 + `/api/llm` 兜底）
+- `docs/js/cloud.js` — WorkBuddy 云端数据同步
+- `docs/img/` — 图片资源
 
-## 在线地址
-- 本地版（干净链接，GitHub Pages）：部署后见仓库 Pages
-- 云端完整版：https://nongxiaohe-health.app.workbuddy.host/?sharecode=4PXAEFKUYL
+## 运行
+以 `docs/` 为站点根目录，入口 `index.html`。完整功能需要：
+- WorkBuddy Cloud SDK（CDN 引入）
+- 后端 `/api/llm`（AI 对话）
+- 云端数据表 `nxh_docs`（WorkBuddy 云服务）
 
-## 技术栈
-- 前端：原生 HTML / CSS / JavaScript，hash 路由
-- 云端：PostgreSQL + 行级安全（RLS）+ 只读 RPC（SECURITY DEFINER）
-- 数据：业务数据存云端，浏览器仅保存会话令牌
-
-## 演示边界
-- 验证码为本地演示固定值 888888，不发送真实短信
-- AI 问答与方案基于规则引擎生成，仅供健康记录参考，不构成医疗诊断
+## 线上
+https://nongxiaohe-health-35480.app.workbuddy.host/?sharecode=NAANFN6TIT
